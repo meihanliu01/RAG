@@ -299,6 +299,64 @@ def consistency_check(samples):
 
 
 # ============================================================
+# Table 7: Cross-Model Comparison (Llama-3 vs Qwen2.5)
+# ============================================================
+def table_7_cross_model(llama_samples):
+    print("\n" + "="*80)
+    print("TABLE 7: Cross-Model Comparison (Llama-3-8B vs Qwen2.5-7B)")
+    print("="*80)
+    
+    qwen_file = os.path.join(RESULTS_DIR, "qwen_final_labeled.json")
+    if not os.path.exists(qwen_file):
+        print("⚠️ qwen_final_labeled.json not found. Skipping Table 7.")
+        print("   请先运行: python scripts/inference/qwen_full_pipeline.py")
+        return
+    
+    with open(qwen_file, 'r', encoding='utf-8') as f:
+        qwen_raw = json.load(f)
+    qwen_samples = qwen_raw.get('details', qwen_raw) if isinstance(qwen_raw, dict) else qwen_raw
+    
+    def compute_tier_stats(samples):
+        stats = {}
+        for tier in ['High', 'Medium', 'Low']:
+            subset = [s for s in samples if s.get('saliency') == tier]
+            n = len(subset)
+            if n == 0:
+                stats[tier] = {'p': 0, 'a': 0, 'u': 0, 'n': 0}
+                continue
+            labels = Counter(s.get('label', 'Uncertain/Other') for s in subset)
+            stats[tier] = {
+                'p': round(labels.get('Persistence', 0) / n * 100, 1),
+                'a': round(labels.get('Adherence', 0) / n * 100, 1),
+                'u': round(labels.get('Uncertain/Other', 0) / n * 100, 1),
+                'n': n
+            }
+        return stats
+    
+    llama_stats = compute_tier_stats(llama_samples)
+    qwen_stats = compute_tier_stats(qwen_samples)
+    
+    print(f"\n{'Tier':<8} | {'--- Llama-3-8B ---':^36} | {'--- Qwen2.5-7B ---':^36}")
+    print(f"{'':8} | {'Persist':>8} {'Adhere':>8} {'Uncert':>8} {'N':>6} | {'Persist':>8} {'Adhere':>8} {'Uncert':>8} {'N':>6}")
+    print("-" * 90)
+    
+    for tier in ['High', 'Medium', 'Low']:
+        ls = llama_stats[tier]
+        qs = qwen_stats[tier]
+        print(f"{tier:<8} | {ls['p']:>7.1f}% {ls['a']:>7.1f}% {ls['u']:>7.1f}% {ls['n']:>5} | {qs['p']:>7.1f}% {qs['a']:>7.1f}% {qs['u']:>7.1f}% {qs['n']:>5}")
+    
+    # Overall
+    print("-" * 90)
+    for model_name, samples in [("Llama-3", llama_samples), ("Qwen2.5", qwen_samples)]:
+        n = len(samples)
+        labels = Counter(s.get('label', 'Uncertain/Other') for s in samples)
+        p = round(labels.get('Persistence', 0) / n * 100, 1) if n > 0 else 0
+        a = round(labels.get('Adherence', 0) / n * 100, 1) if n > 0 else 0
+        u = round(labels.get('Uncertain/Other', 0) / n * 100, 1) if n > 0 else 0
+        print(f"  {model_name} Overall: Persist={p}%, Adhere={a}%, Uncert={u}% (N={n})")
+
+
+# ============================================================
 # Main
 # ============================================================
 def main():
@@ -312,11 +370,12 @@ def main():
     table_4_ablation()
     table_5_interaction(samples)
     table_6_knowledge_conditioning(samples)
+    table_7_cross_model(samples)
     
     print("\n" + "="*80)
-    print("✅ All tables generated successfully from a single data source.")
-    print("   Data source: results/rag_final_labeled_augmented.json")
-    print("   Label field: 'label' (from behavioral_classifier.py)")
+    print("✅ All tables generated successfully.")
+    print("   Llama data: results/rag_final_labeled_augmented.json")
+    print("   Qwen data:  results/qwen_final_labeled.json")
     print("="*80)
 
 if __name__ == "__main__":

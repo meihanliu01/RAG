@@ -59,7 +59,7 @@ def plot_model_comparison():
     
     # --- 从实际结果文件读取数据 ---
     llama_file = os.path.join(RESULTS_DIR, "rag_final_labeled_augmented.json")
-    qwen_file = os.path.join(RESULTS_DIR, "qwen_rag_final_results.json")
+    qwen_file = os.path.join(RESULTS_DIR, "qwen_final_labeled.json")
     
     llama_stats = compute_model_stats(llama_file)
     qwen_stats = compute_model_stats(qwen_file)
