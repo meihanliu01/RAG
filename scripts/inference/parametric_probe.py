@@ -3,11 +3,16 @@ import requests
 import os
 from tqdm import tqdm
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 # Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3:8b"  # Ensure this matches your 'ollama list' output
-INPUT_FILE = "rag_balanced_2400.json"
-OUTPUT_FILE = "llama_parametric_probe_results.json"
+INPUT_FILE = os.path.join(DATA_DIR, "rag_balanced_2400.json")
+OUTPUT_FILE = os.path.join(RESULTS_DIR, "llama_parametric_probe_results.json")
 
 def main():
     if not os.path.exists(INPUT_FILE):

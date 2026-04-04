@@ -2,6 +2,10 @@ import json
 import os
 from collections import defaultdict
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 def analyze_saliency_distribution(input_file):
     if not os.path.exists(input_file):
         print(f"Error: {input_file} not found.")
@@ -73,4 +77,4 @@ def analyze_saliency_distribution(input_file):
 
 if __name__ == "__main__":
     # 使用包含 pred_base 的最新标注文件
-    analyze_saliency_distribution("rag_final_labeled_augmented.json")
+    analyze_saliency_distribution(os.path.join(RESULTS_DIR, "rag_final_labeled_augmented.json"))

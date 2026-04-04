@@ -1,4 +1,9 @@
 import json
+import os
+
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 def analyze_errors(file_path):
     with open(file_path, 'r') as f:
@@ -38,4 +43,4 @@ def analyze_errors(file_path):
     return examples
 
 # 运行分析
-error_samples = analyze_errors("rag_k5.json")
+error_samples = analyze_errors(os.path.join(DATA_DIR, "rag_k5.json"))

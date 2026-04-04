@@ -3,6 +3,10 @@ import os
 import re
 import string
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 def normalize(s):
     """归一化字符串：小写、去虚词、去标点、去多余空格"""
     s = str(s).lower()
@@ -58,28 +62,20 @@ def classify_behavior(input_file, output_file):
         entry['is_known_by_model'] = is_soft_match(pred_base, gold)
 
         # 3. RAG 行为判定逻辑 (基于 pred_rag)
+        # 统一 Taxonomy (论文 Table 1): 所有 Saliency Tier 使用相同逻辑
         pred_rag_norm = normalize(pred_rag)
         
         # A. 排除拒绝回答 (Uncertain)
         if any(msg in pred_rag.lower() for msg in ["don't know", "dont know", "not mentioned", "no information"]) or not pred_rag_norm:
             entry['label'] = "Uncertain/Other"
             
-        # B. Low-Saliency 逻辑 (注入式知识)
-        elif saliency == 'Low':
-            # 在 Low 组，命中 gold 或 fake 统一视为 Adherence
-            if is_soft_match(pred_rag, gold) or is_soft_match(pred_rag, fake):
-                entry['label'] = "Adherence"
-            else:
-                entry['label'] = "Uncertain/Other"
-                
-        # C. High/Medium 逻辑 (对抗式冲突)
+        # B. 统一分类逻辑 (适用于 High / Medium / Low)
+        elif is_soft_match(pred_rag, gold):
+            entry['label'] = "Persistence"
+        elif is_soft_match(pred_rag, fake):
+            entry['label'] = "Adherence"
         else:
-            if is_soft_match(pred_rag, gold):
-                entry['label'] = "Persistence"
-            elif is_soft_match(pred_rag, fake):
-                entry['label'] = "Adherence"
-            else:
-                entry['label'] = "Uncertain/Other"
+            entry['label'] = "Uncertain/Other"
 
     # --- 保存结果 ---
     output_json = {"details": samples}
@@ -95,5 +91,5 @@ def classify_behavior(input_file, output_file):
     print(f"✅ Final labeled file saved to: {output_file}")
 
 if __name__ == "__main__":
-    # 确保此输入文件包含了你刚才跑出来的 pred_base 字段
-    classify_behavior("parametric_probe_results.json", "rag_final_labeled_augmented.json")
+    # 输入: RAG 推理结果 (包含 pred + pred_base 字段)
+    classify_behavior(os.path.join(RESULTS_DIR, "rag_final_results.json"), os.path.join(RESULTS_DIR, "rag_final_labeled_augmented.json"))

@@ -11,6 +11,10 @@ from tqdm import tqdm
 # Must be at the very top for macOS safety
 os.environ["OBJC_DISABLE_INITIALIZE_FOR_SAFETY"] = "YES"
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 print(">>> Script starting: Loading base libraries...", flush=True)
 
 try:
@@ -104,9 +108,9 @@ def main():
     
     print(f"\n✅ Experiment Complete!\nEM Score: {final_em:.4f}\nF1 Score: {final_f1:.4f}", flush=True)
     
-    with open("baseline_results.json", "w") as f:
+    with open(os.path.join(RESULTS_DIR, "baseline_results.json"), "w") as f:
         json.dump({"em": final_em, "f1": final_f1, "details": results}, f, indent=4)
-    print(">>> Results saved to baseline_results.json")
+    print(">>> Results saved to results/baseline_results.json")
 
 if __name__ == "__main__":
     main()

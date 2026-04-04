@@ -1,5 +1,10 @@
 import json
+import os
 from collections import Counter
+
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 def analyze_1000_results(file_path):
     with open(file_path, 'r') as f:
@@ -26,4 +31,4 @@ def analyze_1000_results(file_path):
     for c in adherence_cases:
         print(f"[FOLLOWED CONFLICT] Q: {c['q']} | Real: {c['gold']} | Fake: {c['fake']}")
 
-analyze_1000_results("rag_conflict_1000.json")
+analyze_1000_results(os.path.join(DATA_DIR, "rag_conflict_1000.json"))

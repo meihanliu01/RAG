@@ -2,6 +2,12 @@ import json
 import os
 import matplotlib.pyplot as plt
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+FIGURES_DIR = os.path.join(PROJECT_ROOT, "figures")
+
 def load_result(filename, default_k=None):
     if not os.path.exists(filename):
         print(f"⚠️ Warning: {filename} not found, skipping...")
@@ -15,11 +21,11 @@ def main():
 
     print(">>> Plotting script started...")
     files = [
-        ("baseline_results.json", 0),
-        ("rag_k1.json", 1),
-        ("rag_k3.json", 3),  
-        ("rag_k5.json", 5),
-        ("rag_k8.json", 8)
+        (os.path.join(RESULTS_DIR, "baseline_results.json"), 0),
+        (os.path.join(DATA_DIR, "rag_k1.json"), 1),
+        (os.path.join(DATA_DIR, "rag_k3.json"), 3),
+        (os.path.join(DATA_DIR, "rag_k5.json"), 5),
+        (os.path.join(DATA_DIR, "rag_k8.json"), 8)
     ]
 
     results = []
@@ -63,7 +69,7 @@ def main():
 
 
     plt.tight_layout()
-    output_img = "rag_performance_comparison.png"
+    output_img = os.path.join(FIGURES_DIR, "rag_performance_comparison.png")
     plt.savefig(output_img, dpi=300)
     print(f"✅ Success! Plot saved as '{output_img}'")
     plt.show()

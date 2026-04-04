@@ -5,6 +5,11 @@ from tqdm import tqdm
 from huggingface_hub import login
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 # ==========================================
 # 1. 权限与身份验证 (请在此处填入你的 Token)
 # 获取地址: https://huggingface.co/settings/tokens
@@ -118,4 +123,4 @@ def run_ablation_experiment(test_data_path, output_path):
 
 if __name__ == "__main__":
     # 确保文件名与你目录下的文件一致
-    run_ablation_experiment("rag_conflict_1000.json", "ablation_results.json")
+    run_ablation_experiment(os.path.join(DATA_DIR, "rag_conflict_1000.json"), os.path.join(RESULTS_DIR, "ablation_results.json"))

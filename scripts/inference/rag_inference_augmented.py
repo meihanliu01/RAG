@@ -4,11 +4,15 @@ import json
 import requests
 from tqdm import tqdm
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 # --- Configuration ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "qwen2.5:7b"
-INPUT_FILE = "rag_labeled_augmented.json" 
-OUTPUT_FILE = "qwen_rag_final_results.json"
+INPUT_FILE = os.path.join(RESULTS_DIR, "rag_labeled_augmented.json")
+OUTPUT_FILE = os.path.join(RESULTS_DIR, "qwen_rag_final_results.json")
 
 def main():
     print(f">>> 1. Loading Augmented Data: {INPUT_FILE}...")

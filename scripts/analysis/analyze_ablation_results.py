@@ -1,5 +1,10 @@
 import json
+import os
 from collections import Counter
+
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
 def classify_behavior_improved(response):
     response = response.lower()
@@ -50,4 +55,4 @@ def analyze(input_file):
         print(f"{variant:<20} | {p:<12} | {a:<12} | {u:<12}")
 
 if __name__ == "__main__":
-    analyze("ablation_results.json")
+    analyze(os.path.join(RESULTS_DIR, "ablation_results.json"))

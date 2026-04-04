@@ -11,6 +11,10 @@ from tqdm import tqdm
 # Safety settings for Mac M4 / Apple Silicon
 os.environ["OBJC_DISABLE_INITIALIZE_FOR_SAFETY"] = "YES"
 
+# Project root directory (two levels up from this script)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+
 print(">>> 1. Script started, importing libraries...", flush=True)
 
 def main():
@@ -47,8 +51,8 @@ def main():
     index.add(np.array(embeddings).astype('float32'))
 
     # Save the index and the text chunks for later retrieval
-    faiss.write_index(index, "squad_faiss.index")
-    with open("chunks.json", "w", encoding="utf-8") as f:
+    faiss.write_index(index, os.path.join(DATA_DIR, "squad_faiss.index"))
+    with open(os.path.join(DATA_DIR, "chunks.json"), "w", encoding="utf-8") as f:
         json.dump(chunk_texts, f, ensure_ascii=False)
 
     print("\n✅ Task Complete! Generated 'squad_faiss.index' and 'chunks.json'.")

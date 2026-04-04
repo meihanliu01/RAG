@@ -4,17 +4,22 @@ import json
 import requests
 from tqdm import tqdm
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 # --- Configuration ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3:8b"
-# 指定你刚才生成的增强数据集
-INPUT_FILE = "rag_labeled_augmented.json" 
-OUTPUT_FILE = "rag_final_results.json"
+# 输入：parametric probe 的输出（包含 pred_base 字段）
+INPUT_FILE = os.path.join(RESULTS_DIR, "llama_parametric_probe_results.json")
+OUTPUT_FILE = os.path.join(RESULTS_DIR, "rag_final_results.json")
 
 def main():
     print(f">>> 1. Loading Augmented Data: {INPUT_FILE}...")
     if not os.path.exists(INPUT_FILE):
         print(f"❌ Error: {INPUT_FILE} not found.")
+        print("   请先运行: python scripts/inference/parametric_probe.py")
         sys.exit(1)
 
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
@@ -23,17 +28,20 @@ def main():
     # 兼容你之前的结构，数据在 'details' 键下
     samples = data.get('details', data)
 
-    print(f">>> 2. Starting Inference for {len(samples)} samples...")
+    # 统计需要跑的样本数
+    to_run = [s for s in samples if not s.get('pred') or s['pred'] == "RE-RUN REQUIRED" or s['pred'].startswith("Error")]
+    print(f">>> 2. Starting Inference: {len(to_run)}/{len(samples)} samples need processing...")
     
     for item in tqdm(samples, desc="Generating Predictions"):
-        # 如果不是 Low-Saliency 且已经有结果了，可以跳过以节省时间
-        # 但为了保证一致性，建议全部重新跑一遍，或者只跑标注为 "RE-RUN REQUIRED" 的
-        if item.get('pred') != "RE-RUN REQUIRED":
+        # 跳过已经有有效预测结果的样本
+        existing_pred = item.get('pred', '')
+        if existing_pred and existing_pred != "RE-RUN REQUIRED" and not existing_pred.startswith("Error"):
             continue
 
         question = item['q']
-        # 这里的 Context 必须使用你构造好的冲突上下文 (fake)
-        context = item.get('fake', "No context provided")
+        # 使用冲突上下文（gold answer 已被 fake 替换）
+        # 优先使用 conflicting_context，其次用 context（原始段落）
+        context = item.get('conflicting_context', item.get('context', 'No context provided'))
 
         # 构造 Prompt (保持和你之前实验一致的格式)
         prompt = f"""Use the following pieces of retrieved context to answer the question. 

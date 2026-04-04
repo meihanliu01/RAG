@@ -1,5 +1,9 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
+# Python virtual environment
 rag_env/
+
+# Python bytecode
 __pycache__/
-.DS_Store
 *.pyc
+
+# macOS
+.DS_Store

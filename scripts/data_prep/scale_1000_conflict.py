@@ -1,9 +1,14 @@
 import json
+import os
 import requests
 import random
 import re
 from datasets import load_dataset
 from tqdm import tqdm
+
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3:8b"
@@ -62,7 +67,7 @@ def main():
             })
         except: continue
 
-    with open("rag_conflict_1000.json", "w") as f:
+    with open(os.path.join(DATA_DIR, "rag_conflict_1000.json"), "w") as f:
         json.dump(final_results, f, indent=4)
     print("\n✅ Done! 1000 samples processed.")
 

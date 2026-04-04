@@ -2,6 +2,11 @@ import json
 import random
 import os
 
+# Project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 def build_balanced_dataset(input_file, output_file, target_per_tier=800):
     if not os.path.exists(input_file):
         print(f"Error: {input_file} not found.")
@@ -75,4 +80,4 @@ def build_balanced_dataset(input_file, output_file, target_per_tier=800):
     # 预期输出: Total 2400 (800 High, 800 Medium, 800 Low)
 
 if __name__ == "__main__":
-    build_balanced_dataset("rag_final_analyzed_1000.json", "rag_balanced_2400.json")
+    build_balanced_dataset(os.path.join(RESULTS_DIR, "rag_final_analyzed_1000.json"), os.path.join(DATA_DIR, "rag_balanced_2400.json"))
