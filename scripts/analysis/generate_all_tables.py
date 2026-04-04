@@ -134,25 +134,46 @@ def table_4_ablation():
     ablation_file = os.path.join(RESULTS_DIR, "ablation_results.json")
     if not os.path.exists(ablation_file):
         print("⚠️ ablation_results.json not found. Skipping Table 4.")
+        print("   请先运行: python scripts/inference/ablation_instruction_strength.py")
         return
     
     with open(ablation_file, 'r') as f:
         data = json.load(f)
+    
+    import re, string
+    def normalize(s):
+        s = str(s).lower()
+        s = re.sub(r'\b(a|an|the)\b', ' ', s)
+        s = ''.join(ch for ch in s if ch not in set(string.punctuation))
+        return ' '.join(s.split())
+    
+    def is_soft_match(pred, target):
+        if not pred or not target: return False
+        p, t = normalize(pred), normalize(target)
+        if t in p or p in t: return True
+        pt, tt = set(p.split()), set(t.split())
+        if not tt: return False
+        return len(pt & tt) / len(tt) >= 0.5
     
     variants = defaultdict(lambda: Counter())
     variant_totals = defaultdict(int)
     
     for entry in data:
         variant = entry.get('variant', 'unknown')
-        response = entry.get('response', '').lower()
+        pred = entry.get('pred', '')
+        gold = entry.get('gold', '')
+        fake = entry.get('fake', '')
         
-        # 简化的行为分类
-        if 'alt_' in response:
-            behavior = 'Adherence'
-        elif any(t in response for t in ['not mentioned', 'not provided', 'however', 'uncertain', 'i apologize']):
+        # 使用与 behavioral_classifier 一致的分类逻辑
+        pred_lower = pred.lower()
+        if any(msg in pred_lower for msg in ["don't know", "dont know", "not mentioned", "no information"]) or not pred.strip():
             behavior = 'Uncertain'
-        else:
+        elif is_soft_match(pred, gold):
             behavior = 'Persistence'
+        elif is_soft_match(pred, fake):
+            behavior = 'Adherence'
+        else:
+            behavior = 'Uncertain'
         
         variants[variant][behavior] += 1
         variant_totals[variant] += 1

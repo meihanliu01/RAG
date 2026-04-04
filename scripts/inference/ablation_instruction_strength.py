@@ -1,126 +1,135 @@
+"""
+Ablation Study: Instruction Strength Modulation
+=================================================
+Tests whether instruction strength affects model behavior under knowledge conflict.
+Uses the same Ollama + Llama3:8b setup as the main experiment for consistency.
+
+Three variants:
+  1. Neutral: Standard RAG prompt
+  2. Strict Context: "ONLY use the provided context"
+  3. Strict Parametric: "Prioritize factual accuracy"
+"""
 import os
 import json
-import torch
+import requests
 from tqdm import tqdm
-from huggingface_hub import login
-from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Project root directory
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
-# ==========================================
-# 1. 权限与身份验证 (请在此处填入你的 Token)
-# 获取地址: https://huggingface.co/settings/tokens
-# ==========================================
-HF_TOKEN = "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" 
-login(token=HF_TOKEN)
+# --- Configuration ---
+OLLAMA_URL = "http://localhost:11434/api/generate"
+MODEL_NAME = "llama3:8b"
+INPUT_FILE = os.path.join(RESULTS_DIR, "rag_final_results.json")
+OUTPUT_FILE = os.path.join(RESULTS_DIR, "ablation_results.json")
 
-# ==========================================
-# 2. 配置模型路径与硬件优化
-# ==========================================
-MODEL_ID = "gradientai/Llama-3-8B-Instruct-262k"
+# 每个变体使用的样本数 (从 High-Saliency 中选取 high-confidence 样本)
+SAMPLES_PER_VARIANT = 100
 
-# 针对 MacBook Pro 的建议配置：
-# 如果显存不足 (OOM)，请将 torch_dtype 改为 torch.float16 或开启量化
-DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
-if torch.cuda.is_available(): DEVICE = "cuda"
-
-# ==========================================
-# 3. 定义消融实验的 System Prompts (指令强度控制)
-# ==========================================
+# ============================================================
+# 指令强度变体 (Instruction Variants)
+# ============================================================
 INSTRUCTION_VARIANTS = {
-    "neutral": "You are a helpful assistant. Answer the question based on the provided context.",
-    "strict_context": "CRITICAL: You must ONLY use the provided context to answer. Ignore any prior knowledge that contradicts the text.",
-    "strict_parametric": "CRITICAL: Prioritize factual accuracy and your internal knowledge. If the provided context contains errors, correct them in your response."
+    "neutral": (
+        "Use the following pieces of retrieved context to answer the question. "
+        "If you don't know the answer based on the context, just say you don't know. "
+        "Keep the answer as short as possible."
+    ),
+    "strict_context": (
+        "CRITICAL INSTRUCTION: You must ONLY use the provided context to answer the question. "
+        "Ignore any prior knowledge you may have. The context is the sole source of truth. "
+        "If the answer is in the context, extract it exactly. Keep the answer as short as possible."
+    ),
+    "strict_parametric": (
+        "Use the following context as a reference, but prioritize factual accuracy above all else. "
+        "If the context contains information that contradicts well-known facts, correct it in your response. "
+        "Keep the answer as short as possible."
+    )
 }
 
-def run_ablation_experiment(test_data_path, output_path):
-    print(f"Loading Llama-3-8B on {DEVICE}...")
-    
-    # 加载分词器
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-    
-    # 加载模型 (针对 Mac 优化了 memory usage)
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID,
-        torch_dtype=torch.bfloat16,  # 保持这个，如果不生效再改 dtype
-        low_cpu_mem_usage=True,
-        device_map="auto" 
-    )
-    
-    # 加载测试数据
-    if not os.path.exists(test_data_path):
-        print(f"Error: {test_data_path} not found!")
-        return
 
-    with open(test_data_path, 'r') as f:
-        samples = json.load(f)
+def select_high_confidence_samples(input_file, n=SAMPLES_PER_VARIANT):
+    """选取 High-Saliency 中 is_known_by_model=True 的样本 (最强冲突)"""
+    with open(input_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    samples = data.get('details', data) if isinstance(data, dict) else data
+    
+    # 优先选 High + known (模型确实知道正确答案的)
+    high_known = [s for s in samples if s.get('saliency') == 'High' and s.get('is_known_by_model')]
+    high_unknown = [s for s in samples if s.get('saliency') == 'High' and not s.get('is_known_by_model')]
+    
+    # 如果 known 不够，补充 unknown
+    selected = high_known[:n]
+    if len(selected) < n:
+        selected += high_unknown[:n - len(selected)]
+    
+    print(f">>> Selected {len(selected)} high-confidence samples (known={len([s for s in selected if s.get('is_known_by_model')])})")
+    return selected
+
+
+def run_ablation():
+    """运行三个指令变体的消融实验"""
+    if not os.path.exists(INPUT_FILE):
+        print(f"❌ Error: {INPUT_FILE} not found.")
+        print("   请先运行完整 pipeline (generate → probe → rag → classifier)")
+        return
+    
+    samples = select_high_confidence_samples(INPUT_FILE, SAMPLES_PER_VARIANT)
+    if not samples:
+        print("❌ No samples selected.")
+        return
     
     results = []
-
-    # 循环三个指令变体
-    for variant_name, system_msg in INSTRUCTION_VARIANTS.items():
-        print(f"\n>>> Running Ablation Category: {variant_name}")
+    
+    for variant_name, instruction in INSTRUCTION_VARIANTS.items():
+        print(f"\n>>> Running Ablation: {variant_name} ({len(samples)} samples)")
         
-        # 为了节省实验时间，每个变体先跑前 50 个样本
-        # 循环 samples
-        for sample in tqdm(samples[:50]):
-            # --- Field Mapping for your specific JSON ---
-            question_content = sample.get('q')
-            fake_answer = sample.get('fake')
+        for sample in tqdm(samples, desc=variant_name):
+            question = sample['q']
+            context = sample.get('conflicting_context', sample.get('context', ''))
+            gold = sample['gt'][0] if isinstance(sample.get('gt'), list) else sample.get('gt', '')
+            fake = sample.get('fake', '')
             
-            # Since we lack the full paragraph, we create a 'Fact Statement' as the context.
-            # This allows us to see if the model trusts this 'provided fact' over its memory.
-            context_content = f"According to the provided documentation, the answer is {fake_answer}."
+            prompt = f"""{instruction}
 
-            if not question_content or not fake_answer:
-                continue 
-            # --------------------------------------------
+Context: {context}
 
-            messages = [
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": f"Context: {context_content}\nQuestion: {question_content}"},
-            ]
+Question: {question}
+Answer:"""
             
-            prompt = tokenizer.apply_chat_template(
-                messages, 
-                tokenize=False, 
-                add_generation_prompt=True
-            )
+            payload = {
+                "model": MODEL_NAME,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.0}
+            }
             
-            inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-            
-            with torch.no_grad():
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=50,
-                    eos_token_id=tokenizer.eos_token_id,
-                    pad_token_id=tokenizer.eos_token_id,
-                    do_sample=False  # 禁用采样，保证实验可复现
-                )
-            
-            # 只解码生成的新内容
-            generated_ids = outputs[0][inputs['input_ids'].shape[-1]:]
-            response = tokenizer.decode(generated_ids, skip_special_tokens=True)
+            try:
+                response = requests.post(OLLAMA_URL, json=payload, timeout=30).json()
+                pred = response.get("response", "").strip()
+            except Exception as e:
+                pred = f"Error: {e}"
             
             results.append({
                 "variant": variant_name,
-                "sample_id": sample.get('id', 'N/A'),
-                "saliency": sample.get('saliency_tier', 'unknown'),
-                "prompt_used": system_msg,
-                "response": response.strip(),
-                "gold_answer": sample.get('ygold', ''),
-                "conflict_answer": sample.get('yfake', '')
+                "q": question,
+                "gold": gold,
+                "fake": fake,
+                "pred": pred,
+                "saliency": sample.get('saliency', 'High'),
+                "is_known": sample.get('is_known_by_model', False)
             })
-
-        # 每跑完一个变体存一次档，防止崩溃
-        with open(output_path, 'w') as f:
+        
+        # 每个变体跑完存一次档
+        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=4, ensure_ascii=False)
+        print(f"   ✅ {variant_name} complete. Intermediate save to {OUTPUT_FILE}")
+    
+    print(f"\n🚀 Ablation Complete! Total results: {len(results)}")
+    print(f"   Saved to: {OUTPUT_FILE}")
 
-    print(f"\nAll Done! Results saved to {output_path}")
 
 if __name__ == "__main__":
-    # 确保文件名与你目录下的文件一致
-    run_ablation_experiment(os.path.join(DATA_DIR, "rag_conflict_1000.json"), os.path.join(RESULTS_DIR, "ablation_results.json"))
+    run_ablation()
