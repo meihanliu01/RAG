@@ -1,0 +1,945 @@
+{
+    "em": 0.42,
+    "f1": 0.6047680548926475,
+    "details": [
+        {
+            "q": "How might gravity effects be observed differently according to Newton?",
+            "pred": "According to Newton, gravity effects might be observed differently at larger distances.",
+            "gt": [
+                "at larger distances.",
+                "at larger distances",
+                "at larger distances",
+                "at larger distances"
+            ]
+        },
+        {
+            "q": "What is the prize offered for finding a solution to P=NP?",
+            "pred": "US$1,000,000.",
+            "gt": [
+                "$1,000,000",
+                "US$1,000,000",
+                "US$1,000,000"
+            ]
+        },
+        {
+            "q": "What color were the Bronco's uniforms in Super Bowl 50?",
+            "pred": "The Broncos wore their road white jerseys with matching white pants in Super Bowl 50.",
+            "gt": [
+                "white",
+                "matching white jerseys",
+                "white"
+            ]
+        },
+        {
+            "q": "What are the little tentacles that cydippids have called?",
+            "pred": "Tentilla.",
+            "gt": [
+                "tentilla",
+                "tentilla",
+                "tentilla"
+            ]
+        },
+        {
+            "q": "Which lunar probe was near the Apollo 12 crew's landing site?",
+            "pred": "Surveyor 3.",
+            "gt": [
+                "Surveyor 3",
+                "Surveyor 3",
+                "Surveyor 3",
+                "Surveyor 3",
+                "Surveyor 3"
+            ]
+        },
+        {
+            "q": "Electrolysis of what can be used to produce oxygen and hydrogen?",
+            "pred": "Water.",
+            "gt": [
+                "water",
+                "water",
+                "water",
+                "water"
+            ]
+        },
+        {
+            "q": "When was the Edict of Worms presented?",
+            "pred": "May 25, 1521.",
+            "gt": [
+                "25 May 1521",
+                "25 May 1521",
+                "25 May 1521"
+            ]
+        },
+        {
+            "q": "How many other important people sent letters?",
+            "pred": "According to the context, Tesla wrote over 50 letters to Morgan, and some 150 Nobel laureates have been affiliated with the institution.",
+            "gt": [
+                "more than 70",
+                "more than 70",
+                "more than 70"
+            ]
+        },
+        {
+            "q": "What is an alternate way to make starch?",
+            "pred": "Glucose monomers in the chloroplast can be linked together to make starch.",
+            "gt": [
+                "glucose monomers in the chloroplast can be linked together",
+                "glucose monomers",
+                "glucose monomers in the chloroplast"
+            ]
+        },
+        {
+            "q": "What type of image was Tesla thought to have accidentally taken a week prior to the announcement of its discovery?",
+            "pred": "An X-ray image.",
+            "gt": [
+                "X-ray image",
+                "X-ray",
+                "X-ray image"
+            ]
+        },
+        {
+            "q": "Where did Maududi's books place Islam?",
+            "pred": "In a modern context.",
+            "gt": [
+                "in a modern context",
+                "a modern context",
+                "modern context"
+            ]
+        },
+        {
+            "q": "What is the process of constructing a building or infrastructure?",
+            "pred": "The process of constructing a building or infrastructure is construction.",
+            "gt": [
+                "Construction",
+                "Construction",
+                "Construction"
+            ]
+        },
+        {
+            "q": "How many will the host committee dedicate to local charities?",
+            "pred": "25 percent.",
+            "gt": [
+                "25 percent",
+                "25 percent of all money",
+                "25"
+            ]
+        },
+        {
+            "q": "In what city is SAP Center located?",
+            "pred": "I don't know. The context doesn't mention SAP Center or any information about it.",
+            "gt": [
+                "San Jose",
+                "San Jose",
+                "San Jose."
+            ]
+        },
+        {
+            "q": "For what invention was U.S. Patent 1,655,114 granted?",
+            "pred": "A biplane capable of taking off vertically (VTOL aircraft).",
+            "gt": [
+                "VTOL aircraft",
+                "VTOL aircraft",
+                "a biplane capable of taking off vertically"
+            ]
+        },
+        {
+            "q": "For what purpose is oxygen used by animal life?",
+            "pred": "Cellular respiration.",
+            "gt": [
+                "cellular respiration",
+                "cellular respiration",
+                "cellular respiration",
+                "in cellular respiration",
+                "cellular respiration"
+            ]
+        },
+        {
+            "q": "By which year did the American cars mpg start to improve?",
+            "pred": "By 1985.",
+            "gt": [
+                "1985",
+                "1985",
+                "1985",
+                "1985",
+                "1985"
+            ]
+        },
+        {
+            "q": "Which religion did Kublai prefer?",
+            "pred": "Buddhism, specifically Tibetan Buddhism and the Sakya sect.",
+            "gt": [
+                "Buddhism, especially the Tibetan variants",
+                "Buddhism",
+                "Buddhism"
+            ]
+        },
+        {
+            "q": "Early Western texts referencing the East describe the people as being what?",
+            "pred": "irrational and backward.",
+            "gt": [
+                "irrational and backward",
+                "them",
+                "as irrational and backward",
+                "irrational and backward",
+                "irrational and backward"
+            ]
+        },
+        {
+            "q": "Who is the NFL's vice president of brand and creative?",
+            "pred": "Jaime Weston.",
+            "gt": [
+                "Jaime Weston",
+                "Jaime Weston",
+                "Weston"
+            ]
+        },
+        {
+            "q": "What does Obersee mean?",
+            "pred": "I don't know. The context doesn't mention \"Obersee\".",
+            "gt": [
+                "upper lake",
+                "upper lake",
+                "(\"upper lake\"",
+                "upper lake"
+            ]
+        },
+        {
+            "q": "What types of engines are steam engines?",
+            "pred": "Steam engines are external combustion engines.",
+            "gt": [
+                "external combustion",
+                "external combustion",
+                "external combustion engines",
+                "external combustion"
+            ]
+        },
+        {
+            "q": "In what process are electrons recycled?",
+            "pred": "Cyclic photophosphorylation.",
+            "gt": [
+                "cyclic photophosphorylation",
+                "cyclic photophosphorylation",
+                "cyclic photophosphorylation"
+            ]
+        },
+        {
+            "q": "What third type of plea uses creative words?",
+            "pred": "A \"creative plea\".",
+            "gt": [
+                "creative plea",
+                "no contest",
+                "creative plea",
+                "creative plea",
+                "creative plea",
+                "creative plea"
+            ]
+        },
+        {
+            "q": "What objects in organisms absorb singlet oxygen to prevent harm?",
+            "pred": "Antioxidants.",
+            "gt": [
+                "Carotenoids",
+                "Carotenoids",
+                "Carotenoids",
+                "Carotenoids",
+                "Carotenoids"
+            ]
+        },
+        {
+            "q": "In a market economy, what is inequality a reflection of?",
+            "pred": "The productivity gap between workers, capitalists/business owners, and landlords.",
+            "gt": [
+                "productivity gap between highly-paid professions and lower-paid professions",
+                "productivity gap",
+                "productivity gap"
+            ]
+        },
+        {
+            "q": "What interpretation of Islam is, for many of the adherents, the \"gold standard\" of their religion?",
+            "pred": "Wahhabist.",
+            "gt": [
+                "Saudi",
+                "the Saudi-interpretation",
+                "Saudi"
+            ]
+        },
+        {
+            "q": "Ctenophores are less complex than what other group?",
+            "pred": "Bilaterians.",
+            "gt": [
+                "bilaterians",
+                "bilaterians",
+                "bilaterians"
+            ]
+        },
+        {
+            "q": "Who was the NFL Commissioner in early 2012?",
+            "pred": "Roger Goodell.",
+            "gt": [
+                "Roger Goodell",
+                "Roger Goodell",
+                "Goodell"
+            ]
+        },
+        {
+            "q": "In contrast how were Catholic saints portrayed?",
+            "pred": "In contrast, Catholic saints were often portrayed as having close relationships with parishioners and family, and their perspectives on girls and women.",
+            "gt": [
+                "frail Catholic saints",
+                "frail",
+                "frail"
+            ]
+        },
+        {
+            "q": "Infrastructure is often called what?",
+            "pred": "Heavy/highway, heavy civil or heavy engineering.",
+            "gt": [
+                "heavy/highway, heavy civil or heavy engineering",
+                "heavy/highway, heavy civil or heavy engineering",
+                "heavy/highway, heavy civil or heavy engineering"
+            ]
+        },
+        {
+            "q": "How many years does the V&A glass collection cover?",
+            "pred": "4000 years.",
+            "gt": [
+                "4000",
+                "4000 years",
+                "4000"
+            ]
+        },
+        {
+            "q": "What does ctenophore use to capture prey?",
+            "pred": "I don't know. The context doesn't mention how ctenophores capture their prey.",
+            "gt": [
+                "colloblasts",
+                "colloblasts",
+                "colloblasts"
+            ]
+        },
+        {
+            "q": "What did Luther speak out about in Saxony?",
+            "pred": "I don't know. The context does not mention what Luther spoke out about in Saxony. It only mentions that Johann Eck staged a disputation with Andreas Karlstadt at Leipzig and invited Luther to speak, but it does not specify what Luther spoke out about.",
+            "gt": [
+                "the Jews",
+                "Jews",
+                "Jews"
+            ]
+        },
+        {
+            "q": "What chemical element was the cause of the Apollo 1 disastrous outcome?",
+            "pred": "I don't know. The context does not mention the cause of the Apollo 1 disaster.",
+            "gt": [
+                "pure O"
+            ]
+        },
+        {
+            "q": "Approximately how many works of art are included in the Far Eastern collections?",
+            "pred": "More than 70,000.",
+            "gt": [
+                "more than 70,000",
+                "more than 70,000",
+                "70,000"
+            ]
+        },
+        {
+            "q": "How many types of science fiction have been impacted by Tesla?",
+            "pred": "Several types of science fiction.",
+            "gt": [
+                "several",
+                "several",
+                "several"
+            ]
+        },
+        {
+            "q": "What did he do with Wardenclyffe?",
+            "pred": "He sold it for $20,000 ($472,500 in today's dollars).",
+            "gt": [
+                "sold",
+                "sold",
+                "sold"
+            ]
+        },
+        {
+            "q": "Whose plan called for the Mongolian army to split in two after the Khwarezmian conquest?",
+            "pred": "Subutai's plan called for the Mongolian army to split in two after the Khwarezmian conquest.",
+            "gt": [
+                "Subutai",
+                "Subutai",
+                "Subutai"
+            ]
+        },
+        {
+            "q": "Where was Tesla's property sent?",
+            "pred": "Belgrade, in 80 trunks marked N.T.",
+            "gt": [
+                "Belgrade",
+                "Belgrade",
+                "Belgrade"
+            ]
+        },
+        {
+            "q": "When did Sunday Night Football premiere on NBC?",
+            "pred": "I don't know. The context only mentions that Sunday Night Football moved to NBC in 2006 as part of a broadcast deal, but it doesn't specify when it premiered on NBC.",
+            "gt": [
+                "2006",
+                "2006",
+                "2006"
+            ]
+        },
+        {
+            "q": "How many paintings did John Sheeshanks give to the museum?",
+            "pred": "233",
+            "gt": [
+                "233",
+                "233",
+                "233"
+            ]
+        },
+        {
+            "q": "Who was made rich and prosperous prior to World War 1",
+            "pred": "The many imperial powers were made rich and prosperous prior to World War I.",
+            "gt": [
+                "many imperial powers",
+                "imperial powers",
+                "imperial powers",
+                "imperial powers"
+            ]
+        },
+        {
+            "q": "After the Oligocene period, under what period did the amazon rainforest begin to expand?",
+            "pred": "The Amazon rainforest began to expand during the Middle Miocene.",
+            "gt": [
+                "Middle Miocene",
+                "Middle Miocene",
+                "Middle Miocene"
+            ]
+        },
+        {
+            "q": "Which retired ref disagreed with the outcome of the challenge of a incomplete pass?",
+            "pred": "Mike Carey.",
+            "gt": [
+                "Mike Carey",
+                "Mike Carey",
+                "Carey"
+            ]
+        },
+        {
+            "q": "Where are health and social problems most common?",
+            "pred": "According to the context, health and social problems are \"more common\" in countries with bigger income inequalities.",
+            "gt": [
+                "among states in the US with larger income inequalities",
+                "countries with bigger income inequalities",
+                "countries with bigger income inequalities"
+            ]
+        },
+        {
+            "q": "When was the plastome discovered?",
+            "pred": "The plastome (chloroplast DNA) was first proved to exist in 1962.",
+            "gt": [
+                "1962",
+                "1962",
+                "1962"
+            ]
+        },
+        {
+            "q": "Which study showed double the rate of anxiety?",
+            "pred": "The 2012 study.",
+            "gt": [
+                "2012",
+                "2012",
+                "2012 study"
+            ]
+        },
+        {
+            "q": "What trading route joined Khwarezmia and the Mongol Empire?",
+            "pred": "The Silk Road.",
+            "gt": [
+                "the Silk Road",
+                "Silk Road",
+                "Silk Road"
+            ]
+        },
+        {
+            "q": "Where did Tesla work in Budapest?",
+            "pred": "The Central Telegraph Office and the Budapest Telephone Exchange.",
+            "gt": [
+                "a telegraph company",
+                "the Budapest Telephone Exchange",
+                "Budapest Telephone Exchange"
+            ]
+        },
+        {
+            "q": "What is the name of one type of prime where p+1 or p-1 takes a certain shape?",
+            "pred": "Sophie Germain primes.",
+            "gt": [
+                "primorial primes",
+                "Fermat",
+                "Sophie Germain",
+                "Sophie Germain",
+                "Sophie Germain"
+            ]
+        },
+        {
+            "q": "Where is the Santa Fe Railroad Depot located?",
+            "pred": "The Santa Fe Railroad Depot is located in Downtown Fresno.",
+            "gt": [
+                "Downtown Fresno",
+                "Downtown Fresno",
+                "Downtown Fresno"
+            ]
+        },
+        {
+            "q": "Who won the battle of Lake George?",
+            "pred": "The answer is: Neither side won conclusively. Both sides withdrew from the field.",
+            "gt": [
+                "inconclusively, with both sides withdrawing from the field",
+                "The battle ended inconclusively",
+                "ended inconclusively",
+                "both sides withdrawing from the field",
+                "The battle ended inconclusively"
+            ]
+        },
+        {
+            "q": "Clergy are members of what group rather than of any local congregation?",
+            "pred": "Annual Conference.",
+            "gt": [
+                "their Annual Conference",
+                "Annual Conference",
+                "their Annual Conference"
+            ]
+        },
+        {
+            "q": "On December 22nd 2009, ABC reached an agreement with Apple to make ABC shows available on what service?",
+            "pred": "iTunes.",
+            "gt": [
+                "iTunes",
+                "iTunes",
+                "iTunes"
+            ]
+        },
+        {
+            "q": "Who did the Parliament rent additional buildings from?",
+            "pred": "The City of Edinburgh Council.",
+            "gt": [
+                "City of Edinburgh Council",
+                "City of Edinburgh Council",
+                "the City of Edinburgh Council"
+            ]
+        },
+        {
+            "q": "What style of lace is erroneously believed by some to have Huguenot influence?",
+            "pred": "Bucks Point.",
+            "gt": [
+                "'Bucks Point'",
+                "Bucks Point",
+                "Bucks Point"
+            ]
+        },
+        {
+            "q": "Who led Richard's troops when Cyprus was conquered?",
+            "pred": "Richard himself.",
+            "gt": [
+                "Guy de Lusignan",
+                "Guy de Lusignan",
+                "Guy de Lusignan"
+            ]
+        },
+        {
+            "q": "Who did Newton get a pass to in the Panther starting plays of Super Bowl 50?",
+            "pred": "Jerricho Cotchery.",
+            "gt": [
+                "Ted Ginn Jr.",
+                "Ted Ginn Jr"
+            ]
+        },
+        {
+            "q": "When did Syria and Egypt launch a surprise attack on Israel?",
+            "pred": "October 6, 1973.",
+            "gt": [
+                "On October 6, 1973",
+                "October 6, 1973",
+                "October 6, 1973",
+                "October 6, 1973",
+                "October 6, 1973"
+            ]
+        },
+        {
+            "q": "The west side of Fresno is the center of which ethnic community?",
+            "pred": "The African-American community.",
+            "gt": [
+                "African-American",
+                "African-American",
+                "African-American"
+            ]
+        },
+        {
+            "q": "How much did Tesla say Edison offered him to redesign his motor and generators?",
+            "pred": "Fifty thousand dollars.",
+            "gt": [
+                "fifty thousand dollars",
+                "fifty thousand dollars",
+                "fifty thousand dollars"
+            ]
+        },
+        {
+            "q": "By which year did full sized American cars shrink to be smaller?",
+            "pred": "By 1979.",
+            "gt": [
+                "1979",
+                "1979",
+                "1979",
+                "1979",
+                "1979"
+            ]
+        },
+        {
+            "q": "When did he talk about his thoughts on gender?",
+            "pred": "1926.",
+            "gt": [
+                "1926",
+                "1926",
+                "1926"
+            ]
+        },
+        {
+            "q": "Who led the Kievian Rus' troops against Subutai's Mongol army?",
+            "pred": "I don't know. The context only mentions that Subutai's forces defeated the Kievan force at the Battle of Kalka River in 1223, but it doesn't specify who led the Kievian Rus' troops.",
+            "gt": [
+                "Mstislav the Bold of Halych and Mstislav III of Kiev",
+                "Mstislav the Bold of Halych and Mstislav III of Kiev",
+                "Mstislav the Bold of Halych and Mstislav III of Kiev"
+            ]
+        },
+        {
+            "q": "What do ctenophores have that no other animals have?",
+            "pred": "Colloblasts, which are sticky and adhere to surfaces.",
+            "gt": [
+                "colloblasts",
+                "colloblasts",
+                "colloblasts"
+            ]
+        },
+        {
+            "q": "What impact did the high school education movement have on the wages of skilled workers?",
+            "pred": "The high school education movement led to a decrease in the price of skilled labor due to an increase in skilled workers.",
+            "gt": [
+                "decrease",
+                "decrease in the price of skilled labor",
+                "decrease"
+            ]
+        },
+        {
+            "q": "What physical quantities do not have direction?",
+            "pred": "Scalar quantities.",
+            "gt": [
+                "denoted scalar quantities",
+                "scalar quantities",
+                "denoted scalar quantities",
+                "scalar quantities",
+                "scalar quantities"
+            ]
+        },
+        {
+            "q": "What cable provider did ABC reach an agreement with in 1993 to carry it's owned-and-operated stations in ABC O&O markets?",
+            "pred": "Time Warner Cable.",
+            "gt": [
+                "Time Warner Cable",
+                "Time Warner Cable",
+                "Time Warner Cable"
+            ]
+        },
+        {
+            "q": "Other than the desert city why do many locals and tourists frequent southern California?",
+            "pred": "Popular beaches.",
+            "gt": [
+                "beaches",
+                "for its popular beaches",
+                "beaches"
+            ]
+        },
+        {
+            "q": "Which network regained the ratings lead in America in 1984?",
+            "pred": "I don't know. The context only discusses the networks' performance up to the early 1980s, but does not mention which network regained the ratings lead in 1984 specifically.",
+            "gt": [
+                "NBC",
+                "NBC",
+                "NBC"
+            ]
+        },
+        {
+            "q": "When did Paul Rand's iconic ABC logo first debut?",
+            "pred": "1963-64 season.",
+            "gt": [
+                "1963\u201364 season",
+                "1963\u201364 season",
+                "1962"
+            ]
+        },
+        {
+            "q": "In an adjustable spring-loaded valve, what needs to be broken to allow an operator to tamper with it?",
+            "pred": "A seal illegally is broken.",
+            "gt": [
+                "seal",
+                "seal",
+                "a seal"
+            ]
+        },
+        {
+            "q": "How much Saharan dust is blown and falls upon the Caribbean Sea each year?",
+            "pred": "43 million tons of dust are windblown and fall on the Caribbean Sea each year.",
+            "gt": [
+                "43 million tons",
+                "43 million tons",
+                "43 million tons"
+            ]
+        },
+        {
+            "q": "In what year was Nikola Tesla born? ",
+            "pred": "1856",
+            "gt": [
+                "1856",
+                "1856",
+                "1856"
+            ]
+        },
+        {
+            "q": "What caused the US public to condemn the occupation of the philippines?",
+            "pred": "A war erupted in the Philippines one year after the annexation, causing many deaths among Filipinos.",
+            "gt": [
+                "a war erupted",
+                "a war erupted",
+                "war",
+                "war",
+                "war"
+            ]
+        },
+        {
+            "q": "When forces are from the presence of differnet objects, what law gives symmetry?",
+            "pred": "Newton's Third Law.",
+            "gt": [
+                "Newton's Third",
+                "Newton's Third Law",
+                "Newton's Third Law",
+                "Newton's Third Law",
+                "Newton's Third Law"
+            ]
+        },
+        {
+            "q": "What is rugby rapidly becoming with high schools?",
+            "pred": "A growing sport.",
+            "gt": [
+                "an official school sport",
+                "an official school",
+                "official school sport"
+            ]
+        },
+        {
+            "q": "What do apicoplasts synthesize?",
+            "pred": "According to the context, apicoplasts synthesize fatty acids, isopentenyl pyrophosphate, iron-sulfur clusters, and part of the heme pathway.",
+            "gt": [
+                "fatty acids, isopentenyl pyrophosphate, iron-sulfur clusters",
+                "fatty acids, isopentenyl pyrophosphate, iron-sulfur clusters",
+                "fatty acids, isopentenyl pyrophosphate, iron-sulfur clusters"
+            ]
+        },
+        {
+            "q": "What day did the Apollo 11 crew return to Earth?",
+            "pred": "I don't know. The provided context does not mention the day the Apollo 11 crew returned to Earth. It only mentions their successful landing on July 20, 1969.",
+            "gt": [
+                "July 24",
+                "July 24.",
+                "July 24",
+                "July 24",
+                "July 24"
+            ]
+        },
+        {
+            "q": "Other than land laws, what else were the Californios dissatisfied with?",
+            "pred": "I don't know. The context only mentions taxes as being a source of dissatisfaction for the Californios.",
+            "gt": [
+                "inequitable taxes",
+                "inequitable taxes",
+                "inequitable taxes"
+            ]
+        },
+        {
+            "q": "When was a study conducted of Swedish counties?",
+            "pred": "Between 1960 and 2000.",
+            "gt": [
+                "between 1960 and 2000",
+                "between 1960 and 2000",
+                "between 1960 and 2000"
+            ]
+        },
+        {
+            "q": "How did Genghis Khan observed the surrender terms after Samarkand fell?",
+            "pred": "Genghis Khan supposedly reneged on his surrender terms and executed every soldier that had taken arms against him at Samarkand.",
+            "gt": [
+                "reneged",
+                "reneged",
+                "executed every soldier"
+            ]
+        },
+        {
+            "q": "How many reptiles have been discovered in the Amazon region?",
+            "pred": "378",
+            "gt": [
+                "378",
+                "378",
+                "378"
+            ]
+        },
+        {
+            "q": "What planet did astrophysisist predict to explain the problems with Mercury?",
+            "pred": "Vulcan.",
+            "gt": [
+                "Vulcan",
+                "Vulcan",
+                "Vulcan",
+                "Vulcan"
+            ]
+        },
+        {
+            "q": "What happens to the norm when a number is multiplied by p?",
+            "pred": "The norm gets smaller.",
+            "gt": [
+                "norm gets smaller",
+                "gets smaller",
+                "gets smaller",
+                "gets smaller"
+            ]
+        },
+        {
+            "q": "By what means were scientists able to liquefy air?",
+            "pred": "By compressing and cooling it.",
+            "gt": [
+                "compressing and cooling",
+                "compressing and cooling",
+                "cascade method",
+                "compressing and cooling it",
+                "compressing and cooling"
+            ]
+        },
+        {
+            "q": "What's the name of Newcastle's speedway team?",
+            "pred": "Newcastle Diamonds.",
+            "gt": [
+                "Newcastle Diamonds",
+                "Newcastle Diamonds",
+                "Newcastle Diamonds"
+            ]
+        },
+        {
+            "q": "Who was Warsz?",
+            "pred": "A 12th/13th-century nobleman who owned a village located at the modern-day site of Mariensztat neighbourhood.",
+            "gt": [
+                "12th/13th-century nobleman",
+                "shortened form of the masculine name of Slavic origin Warcis\u0142aw",
+                "nobleman"
+            ]
+        },
+        {
+            "q": "What has a negative influence over the US economy?",
+            "pred": "The embargo.",
+            "gt": [
+                "The embargo",
+                "The embargo",
+                "The embargo",
+                "The embargo",
+                "embargo"
+            ]
+        },
+        {
+            "q": "The \"50\" given to the Super Bowl winner is plated with how many karats of gold?",
+            "pred": "18-karat.",
+            "gt": [
+                "18",
+                "18",
+                "18"
+            ]
+        },
+        {
+            "q": "Who was Cromwell's allies?",
+            "pred": "The Scots.",
+            "gt": [
+                "the Scots",
+                "the Scots",
+                "the Scots"
+            ]
+        },
+        {
+            "q": "Missing self desribes cells that only have small amounts of what cell-surface marker?",
+            "pred": "MHC I (major histocompatibility complex)",
+            "gt": [
+                "MHC I (major histocompatibility complex)",
+                "MHC I",
+                "MHC I (major histocompatibility complex)"
+            ]
+        },
+        {
+            "q": "What well-known archeologist believed the Amazon didn't have many inhabitants?",
+            "pred": "Betty Meggers.",
+            "gt": [
+                "Betty Meggers",
+                "Betty Meggers",
+                "Betty Meggers"
+            ]
+        },
+        {
+            "q": "What kind of bureaucracy did the Normans institute?",
+            "pred": "A meritocratic bureaucracy that included Jews, Muslims, and Christians (Catholic and Eastern Orthodox).",
+            "gt": [
+                "meritocratic",
+                "meritocratic",
+                "meritocratic"
+            ]
+        },
+        {
+            "q": "Other than warships, what ships typically required high speeds?",
+            "pred": "Ocean liners.",
+            "gt": [
+                "ocean liners",
+                "ocean liners",
+                "ocean liners"
+            ]
+        },
+        {
+            "q": "Where does two thirds of the Rhine flow outside of Germany?",
+            "pred": "I don't know. The context only mentions that most of Luxembourg and a very small part of Belgium drain to the Rhine via the Moselle, but it doesn't specify where two-thirds of the Rhine flows outside of Germany.",
+            "gt": [
+                "Waal",
+                "Waal",
+                "through the Waal"
+            ]
+        },
+        {
+            "q": "What was the name of the King of the Scots?",
+            "pred": "Malcolm III and David I were Kings of the Scots.",
+            "gt": [
+                "William the Lion",
+                "William the Lion",
+                "William the Lion"
+            ]
+        },
+        {
+            "q": "Oxygen is released in cellular respiration by?",
+            "pred": "Released by photosynthesis.",
+            "gt": [
+                "photosynthesis",
+                "photosynthesis",
+                "photosynthesis",
+                "photosynthesis",
+                "photosynthesis"
+            ]
+        },
+        {
+            "q": "When did the Jin dynasty end?",
+            "pred": "The Jin dynasty ended in 1234.",
+            "gt": [
+                "1234",
+                "1234",
+                "1234"
+            ]
+        }
+    ]
+}

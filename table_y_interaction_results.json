@@ -1,0 +1,52 @@
+{
+    "rows": [
+        {
+            "saliency": "High",
+            "probe": "Correct",
+            "persistence": 14.8,
+            "adherence": 11.1,
+            "uncertainty": 74.1,
+            "N": 27
+        },
+        {
+            "saliency": "High",
+            "probe": "Incorrect",
+            "persistence": 16.7,
+            "adherence": 21.1,
+            "uncertainty": 62.2,
+            "N": 90
+        },
+        {
+            "saliency": "Medium",
+            "probe": "Correct",
+            "persistence": 23.7,
+            "adherence": 6.2,
+            "uncertainty": 70.1,
+            "N": 177
+        },
+        {
+            "saliency": "Medium",
+            "probe": "Incorrect",
+            "persistence": 11.6,
+            "adherence": 10.4,
+            "uncertainty": 78.0,
+            "N": 656
+        },
+        {
+            "saliency": "Low",
+            "probe": "Correct",
+            "persistence": 22.2,
+            "adherence": 5.6,
+            "uncertainty": 72.2,
+            "N": 18
+        },
+        {
+            "saliency": "Low",
+            "probe": "Incorrect",
+            "persistence": 18.8,
+            "adherence": 12.5,
+            "uncertainty": 68.8,
+            "N": 32
+        }
+    ]
+}
