@@ -14,17 +14,16 @@ def analyze_saliency_distribution(input_file):
     with open(input_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
 
-    # 1. 自动提取 details 列表
+
     samples = raw_data.get('details', raw_data) if isinstance(raw_data, dict) else raw_data
 
-    # 2. 初始化统计变量
     # stats[saliency][label] = count
     stats = defaultdict(lambda: defaultdict(int))
     totals = defaultdict(int)
     
-    # 新增：用于计算 Probe Accuracy 和 Resilience
-    known_counts = defaultdict(int)  # pred_base 答对的数量
-    resilient_counts = defaultdict(int) # pred_base 答对且 pred_rag 也坚持了 gold 的数量
+
+    known_counts = defaultdict(int)  
+    resilient_counts = defaultdict(int) 
 
     for entry in samples:
         if not isinstance(entry, dict): continue
@@ -43,7 +42,6 @@ def analyze_saliency_distribution(input_file):
             if label == "Persistence":
                 resilient_counts[saliency] += 1
 
-    # 3. 打印结果表格
     print("\n" + "="*95)
     header = f"{'Saliency Tier':<14} | {'Base Acc':<10} | {'Resilience':<12} | {'Persistence':<12} | {'Adherence':<11} | {'Uncertain':<11} | {'N':<6}"
     print(header)
@@ -76,5 +74,5 @@ def analyze_saliency_distribution(input_file):
     print("💡 Formula: Resilience = (Persistence count / Known count) * 100%\n")
 
 if __name__ == "__main__":
-    # 使用包含 pred_base 的最新标注文件
+
     analyze_saliency_distribution(os.path.join(RESULTS_DIR, "rag_final_labeled_augmented.json"))

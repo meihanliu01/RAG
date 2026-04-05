@@ -10,7 +10,7 @@ def get_llama_response(prompt):
         "model": MODEL_NAME,
         "prompt": prompt,
         "stream": False,
-        "options": {"temperature": 0.0} # 严格控制变量
+        "options": {"temperature": 0.0} 
     }
     response = requests.post(OLLAMA_URL, json=payload).json()
     return response.get("response", "").strip()

@@ -8,9 +8,11 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
 def normalize(s):
-    """归一化字符串：小写、去虚词、去标点、去多余空格"""
+    """归一化字符串：小写、去虚词、去标点(含连字符)、去多余空格"""
     s = str(s).lower()
     s = re.sub(r'\b(a|an|the)\b', ' ', s)
+    # 连字符和撇号转为空格（如 al-banna → al banna, don't → don t）
+    s = s.replace('-', ' ').replace("'", ' ')
     exclude = set(string.punctuation)
     s = ''.join(ch for ch in s if ch not in exclude)
     return ' '.join(s.split())
