@@ -10,16 +10,16 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 FIGURES_DIR = os.path.join(PROJECT_ROOT, "figures")
 
-# 设置学术风格
+# Set academic style
 sns.set_theme(style="whitegrid")
 plt.rcParams['font.sans-serif'] = ['Arial']
 plt.rcParams['axes.unicode_minus'] = False
 
 
 def compute_model_stats(result_file):
-    """从结果文件中自动计算各 Saliency Tier 的 Persistence 和 Adherence"""
+    """Compute per-tier Persistence and Adherence from results file."""
     if not os.path.exists(result_file):
-        print(f"⚠️ Warning: {result_file} not found")
+        print(f"Warning: {result_file} not found")
         return None
     
     with open(result_file, 'r', encoding='utf-8') as f:
@@ -57,7 +57,7 @@ def compute_model_stats(result_file):
 def plot_model_comparison():
     categories = ['High', 'Medium', 'Low']
     
-    # --- 从实际结果文件读取数据 ---
+    # --- Load actual result data ---
     llama_file = os.path.join(RESULTS_DIR, "rag_final_labeled_augmented.json")
     qwen_file = os.path.join(RESULTS_DIR, "qwen_final_labeled.json")
     
@@ -65,7 +65,7 @@ def plot_model_comparison():
     qwen_stats = compute_model_stats(qwen_file)
     
     if llama_stats is None:
-        print("❌ Error: Llama results not found. Run the classifier first.")
+        print("Error: Llama results not found. Run the classifier first.")
         return
     
     llama_persistence = llama_stats['persistence']
@@ -76,7 +76,7 @@ def plot_model_comparison():
         qwen_adherence = qwen_stats['adherence']
         print(">>> Loaded actual Qwen data from results file")
     else:
-        print("⚠️ Warning: Qwen results not found, using Llama data as placeholder")
+        print("Warning: Qwen results not found, using Llama data as placeholder")
         qwen_persistence = llama_persistence
         qwen_adherence = llama_adherence
     
@@ -88,13 +88,13 @@ def plot_model_comparison():
 
     fig, ax = plt.subplots(figsize=(12, 7), dpi=300)
 
-    # Persistence (红色系)
+    # Persistence (red tones)
     rects1 = ax.bar(x - 1.5*width, llama_persistence, width, label='Llama-3: Persistence', 
                     color='#E24A33', edgecolor='black', hatch='//', alpha=0.8)
     rects2 = ax.bar(x - 0.5*width, qwen_persistence, width, label='Qwen-2.5: Persistence', 
                     color='#FF9999', edgecolor='black', alpha=0.8)
 
-    # Adherence (蓝色系)
+    # Adherence (blue tones)
     rects3 = ax.bar(x + 0.5*width, llama_adherence, width, label='Llama-3: Adherence', 
                     color='#348ABD', edgecolor='black', hatch='\\\\', alpha=0.8)
     rects4 = ax.bar(x + 1.5*width, qwen_adherence, width, label='Qwen-2.5: Adherence', 
@@ -109,7 +109,7 @@ def plot_model_comparison():
     ax.set_ylim(0, 100)
     ax.legend(loc='upper right', ncol=2, frameon=True, shadow=True)
 
-    # 数值标注
+    # Value annotations
     def autolabel(rects):
         for rect in rects:
             height = rect.get_height()
@@ -123,7 +123,7 @@ def plot_model_comparison():
     for r in [rects1, rects2, rects3, rects4]:
         autolabel(r)
 
-    # 检查 Low 是否 collapse
+    # Check if Low tier collapses
     if llama_persistence[2] == 0 and qwen_persistence[2] == 0:
         ax.annotate('Total Collapse of Sovereignty', xy=(2, 5), xytext=(2, 25),
                     arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5),
@@ -131,7 +131,7 @@ def plot_model_comparison():
 
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_model_comparison.png'), bbox_inches='tight')
-    print("🚀 对比图已生成：figures/cross_model_comparison.png")
+    print("Comparison plot saved: figures/cross_model_comparison.png")
     plt.show()
 
 if __name__ == "__main__":

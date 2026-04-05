@@ -71,8 +71,8 @@ def main():
     # --- 1. Load data ---
     print(f">>> 1. Loading balanced data: {INPUT_FILE}")
     if not os.path.exists(INPUT_FILE):
-        print(f"❌ Error: {INPUT_FILE} not found.")
-        print("   请先运行: python scripts/data_prep/generate_balanced_data.py")
+        print(f"Error: {INPUT_FILE} not found.")
+        print("   Please run first: python scripts/data_prep/generate_balanced_data.py")
         sys.exit(1)
     
     with open(INPUT_FILE, 'r', encoding='utf-8') as f:
@@ -116,7 +116,7 @@ def main():
     # Intermediate save
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump({"details": samples}, f, indent=4, ensure_ascii=False)
-    print("   ✅ Probe complete. Intermediate save done.")
+    print("   Probe complete. Intermediate save done.")
     
     # --- 3. RAG Inference (with conflicting context) ---
     to_rag = [s for s in samples if not s.get('pred') or s['pred'].startswith('Error')]
@@ -144,7 +144,7 @@ Answer:"""
     # Intermediate save
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump({"details": samples}, f, indent=4, ensure_ascii=False)
-    print("   ✅ RAG inference complete. Intermediate save done.")
+    print("   RAG inference complete. Intermediate save done.")
     
     # --- 4. Behavioral Classification ---
     print(f"\n>>> 4. Classifying behavior for {len(samples)} samples...")
@@ -181,7 +181,7 @@ Answer:"""
     label_counts = Counter(s.get('label') for s in samples)
     
     print(f"\n{'='*60}")
-    print(f"🚀 Qwen2.5-7B Pipeline Complete!")
+    print(f"Qwen2.5-7B Pipeline Complete!")
     print(f"   Output: {OUTPUT_FILE}")
     print(f"   Total: N={total}")
     print(f"   Persistence: {label_counts.get('Persistence', 0)} ({label_counts.get('Persistence', 0)/total*100:.1f}%)")

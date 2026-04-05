@@ -16,14 +16,14 @@ OUTPUT_FILE = os.path.join(RESULTS_DIR, "llama_parametric_probe_results.json")
 
 def main():
     if not os.path.exists(INPUT_FILE):
-        print(f"❌ Error: Input file {INPUT_FILE} not found. Please run generate_balanced_data.py first.")
+        print(f"Error: Input file {INPUT_FILE} not found. Please run generate_balanced_data.py first.")
         return
 
     with open(INPUT_FILE, "r", encoding='utf-8') as f:
         data = json.load(f)
         samples = data.get('details', [])
 
-    print(f">>> 🚀 Starting Parametric Probe (Zero-Context)...")
+    print(f">>> Starting Parametric Probe (Zero-Context)...")
     print(f">>> Total Samples to Process: {len(samples)}")
     
     # Initialize statistics for each Saliency Tier
@@ -81,9 +81,9 @@ def main():
         json.dump({"details": samples}, f, indent=4, ensure_ascii=False)
 
     # Final summary report
-    print(f"\n✅ Task Complete! Results saved to: {OUTPUT_FILE}")
+    print(f"\nTask Complete! Results saved to: {OUTPUT_FILE}")
     print("-" * 40)
-    print("📊 Zero-Context Accuracy (Parametric Memory Baseline):")
+    print("Zero-Context Accuracy (Parametric Memory Baseline):")
     for tier, data in stats.items():
         accuracy = (data['correct'] / data['total'] * 100) if data['total'] > 0 else 0
         print(f" - {tier} Saliency: {accuracy:.2f}% ({data['correct']}/{data['total']})")

@@ -10,14 +10,14 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 FIGURES_DIR = os.path.join(PROJECT_ROOT, "figures")
 
-# 设置学术绘图风格
+# Set academic plot style
 sns.set_theme(style="whitegrid")
 plt.rcParams['font.sans-serif'] = ['Arial', 'sans-serif']
 plt.rcParams['axes.unicode_minus'] = False
 
 
 def load_saliency_stats(result_file):
-    """从标注结果文件中自动计算各 Saliency Tier 的行为分布"""
+    """Compute behavior distribution per saliency tier from labeled results."""
     with open(result_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
@@ -56,10 +56,10 @@ def load_saliency_stats(result_file):
 
 
 def plot_saliency_behavior():
-    # --- 自动从结果文件读取数据 ---
+    # --- Load data from results file ---
     result_file = os.path.join(RESULTS_DIR, "rag_final_labeled_augmented.json")
     if not os.path.exists(result_file):
-        print(f"❌ Error: {result_file} not found. Run the classifier first.")
+        print(f"Error: {result_file} not found. Run the classifier first.")
         return
     
     categories, persistence, adherence, uncertain, sample_sizes = load_saliency_stats(result_file)
@@ -73,7 +73,7 @@ def plot_saliency_behavior():
 
     fig, ax = plt.subplots(figsize=(10, 6.5), dpi=300)
 
-    # 绘制柱状图
+    # Draw bar chart
     rects1 = ax.bar(x - width, persistence, width, label='Persistence (Internal Memory)', 
                     color='#E24A33', edgecolor='black', linewidth=0.8, alpha=0.85)
     rects2 = ax.bar(x, adherence, width, label='Adherence (Context)', 
@@ -81,7 +81,7 @@ def plot_saliency_behavior():
     rects3 = ax.bar(x + width, uncertain, width, label='Uncertain / Other', 
                     color='#988ED5', edgecolor='black', linewidth=0.8, alpha=0.85)
 
-    # 标签与标题 (含样本量)
+    # Labels and title (with sample sizes)
     x_labels = [f"{cat}\n(N={n})" for cat, n in zip(categories, sample_sizes)]
     ax.set_ylabel('Percentage of Samples (%)', fontsize=12, fontweight='bold', labelpad=10)
     ax.set_title('Model Behavior under Knowledge Conflict\n(Varying Entity Saliency Tiers)', 
@@ -94,11 +94,11 @@ def plot_saliency_behavior():
     ax.xaxis.grid(False)
     ax.legend(loc='upper right', frameon=True, fontsize=10, shadow=True)
 
-    # 数值标注
+    # Value annotations
     def autolabel(rects):
         for rect in rects:
             height = rect.get_height()
-            if height > 0.5:  # 只标注 > 0.5% 的柱子
+            if height > 0.5:  # Only annotate bars > 0.5%
                 ax.annotate(f'{height}%',
                             xy=(rect.get_x() + rect.get_width() / 2, height),
                             xytext=(0, 5),
@@ -109,7 +109,7 @@ def plot_saliency_behavior():
     autolabel(rects2)
     autolabel(rects3)
 
-    # 趋势辅助虚线
+    # Trend guide lines
     ax.plot(x - width, persistence, color='#E24A33', marker='o', markersize=4, 
             linestyle=':', linewidth=1.5, alpha=0.6)
     ax.plot(x, adherence, color='#348ABD', marker='s', markersize=4, 
@@ -119,7 +119,7 @@ def plot_saliency_behavior():
     
     output_filename = os.path.join(FIGURES_DIR, 'saliency_behavior_analysis_final.png')
     plt.savefig(output_filename, bbox_inches='tight')
-    print(f"✅ Success! Plot saved as {output_filename}")
+    print(f"Success! Plot saved as {output_filename}")
     plt.show()
 
 if __name__ == "__main__":

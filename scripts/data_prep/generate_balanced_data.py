@@ -9,11 +9,11 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 # ============================================================
-# 长尾实体库 (200+ unique pairs for Low-Saliency experiments)
-# 来源: 生物学、化学、地理、历史等专业领域的冷门实体
+# Long-tail entity bank (200+ unique pairs for Low-Saliency experiments)
+# Sources: biology, chemistry, geography, history, and other specialized domains
 # ============================================================
 LOW_SALIENCY_ENTITIES = [
-    # 生物学 - 蛋白质与基因
+    # Biology - Proteins and genes
     ("Zfyve26 protein", "Pseudo-Zfyve26"), ("BRCA2 exon 11", "BRCA2-X11"),
     ("Titin connectin", "Titin-Alt"), ("Opsonic receptor CR3", "CR3-Variant"),
     ("Claudin-5 junction", "Claudin-5X"), ("Aquaporin-4 channel", "AQP4-Beta"),
@@ -27,7 +27,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Laminin alpha-5", "Laminin-A5X"), ("Integrin beta-1", "Integrin-B1-Var"),
     ("Cadherin-11 adhesion", "Cadherin-11X"), ("Selectin P-selectin", "P-selectin-V2"),
     ("Mucin MUC5AC", "MUC5AC-Alt"), ("Defensin alpha-1", "Defensin-A1X"),
-    # 生物学 - 有机体与物种
+    # Biology - Organisms and species
     ("Apicoplast organelle", "Synthetic-Apicoplast"), ("Merytre-Hatshepsut", "Hatshepsut-D"),
     ("Boulengerula taitana", "Boulengerula-X"), ("Mnemiopsis leidyi", "Mnemiopsis-V2"),
     ("Tardigrade Ramazzottius", "Ramazzottius-X"), ("Deinococcus radiodurans", "Deinococcus-V2"),
@@ -41,7 +41,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Schistosoma mansoni", "S-mansoni-Alt"), ("Onchocerca volvulus", "O-volvulus-X"),
     ("Wuchereria bancrofti", "W-bancrofti-V2"), ("Brugia malayi", "B-malayi-Alt"),
     ("Ancylostoma duodenale", "A-duodenale-X"),
-    # 化学 - 化合物与反应
+    # Chemistry - Compounds and reactions
     ("Buckminsterfullerene C60", "C60-Isomer"), ("Ferrocene metallocene", "Ferrocene-Alt"),
     ("Zeolite ZSM-5 catalyst", "ZSM-5-V2"), ("Grubbs catalyst Ru", "Grubbs-Ru-X"),
     ("Cisplatin Pt complex", "Cisplatin-V2"), ("Taxol paclitaxel side chain", "Taxol-SC-Alt"),
@@ -55,7 +55,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Cortisol glucocorticoid", "Cortisol-GC-Alt"), ("Aldosterone mineral", "Aldosterone-MN-X"),
     ("Testosterone androgen", "Testosterone-AG-V2"), ("Estradiol phenol ring", "Estradiol-PR-Alt"),
     ("Progesterone ketone", "Progesterone-KT-X"),
-    # 地理 - 冷门地名
+    # Geography - Obscure locations
     ("Oymyakon settlement", "Oymyakon-Alt"), ("Grytviken station", "Grytviken-Base"),
     ("Ittoqqortoormiit village", "Ittoqqortoormiit-V2"), ("Tristan da Cunha island", "TDC-Variant"),
     ("Bouvet Island territory", "Bouvet-Alt"), ("Heard Island volcano", "Heard-V2"),
@@ -69,7 +69,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Navassa Island disputed", "Navassa-Alt"), ("Baker Island uninhabited", "Baker-V2"),
     ("Howland Island equatorial", "Howland-Alt"), ("Jarvis Island coral", "Jarvis-V2"),
     ("Kingman Reef submerged", "Kingman-Alt"),
-    # 历史 - 冷门事件与人物
+    # History - Obscure events and figures
     ("Peloponnesian truce", "Peloponnesian-T2"), ("Defenestration of Prague", "Defenestration-V2"),
     ("Treaty of Tordesillas", "Tordesillas-Alt"), ("Edict of Fontainebleau", "Fontainebleau-X"),
     ("Peace of Augsburg", "Augsburg-V2"), ("Diet of Worms decree", "Worms-Alt"),
@@ -83,7 +83,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Senatus consultum decree", "SenatusC-Alt"), ("Lex Julia adultery", "Julia-X"),
     ("Lex Oppia sumptuary", "Oppia-V2"), ("Lex Voconia inheritance", "Voconia-Alt"),
     ("Lex Falcidia testament", "Falcidia-X"),
-    # 矿物学与地质学
+    # Mineralogy and geology
     ("Coesite silica polymorph", "Coesite-V2"), ("Stishovite high pressure", "Stishovite-Alt"),
     ("Ringwoodite olivine", "Ringwoodite-X"), ("Bridgmanite perovskite", "Bridgmanite-V2"),
     ("Davemaoite CaSiO3", "Davemaoite-Alt"), ("Wadsleyite spinel", "Wadsleyite-X"),
@@ -94,7 +94,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Ahrensite Fe2SiO4", "Ahrensite-X"), ("Tissintite pyroxene", "Tissintite-V2"),
     ("Zagamiite CaAl2Si3.5O11", "Zagamiite-Alt"), ("Hiroseite FeSiO3", "Hiroseite-X"),
     ("Tschaunerite FeSiO3", "Tschaunerite-V2"), ("Elgoresyite KNaSi3O8", "Elgoresyite-Alt"),
-    # 天文学
+    # Astronomy
     ("Sagittarius A* black hole", "SgrA-V2"), ("Tabby Star dimming", "TabbyStar-Alt"),
     ("Oumuamua interstellar", "Oumuamua-X"), ("Proxima Centauri b", "ProximaCb-V2"),
     ("TRAPPIST-1e habitable", "TRAPPIST1e-Alt"), ("Kepler-442b exoplanet", "Kepler442b-X"),
@@ -105,8 +105,8 @@ LOW_SALIENCY_ENTITIES = [
     ("Kapteyn b ancient", "Kapteynb-X"), ("GJ 1214b water world", "GJ1214b-V2"),
     ("55 Cancri e diamond", "55Cancrie-Alt"), ("CoRoT-7b lava", "CoRoT7b-X"),
     ("Gliese 436b hot Neptune", "Gliese436b-V2"), ("HAT-P-7b retrograde", "HATP7b-Alt"),
-    # 语言学
-    ("Pirahã recursion debate", "Piraha-V2"), ("Khoisan click consonant", "Khoisan-Alt"),
+    # Linguistics
+    ("Piraha recursion debate", "Piraha-V2"), ("Khoisan click consonant", "Khoisan-Alt"),
     ("Basque ergative case", "Basque-X"), ("Ainu polysynthetic", "Ainu-V2"),
     ("Tocharian centum branch", "Tocharian-Alt"), ("Hittite laryngeal", "Hittite-X"),
     ("Etruscan isolate", "Etruscan-V2"), ("Sumerian agglutinative", "Sumerian-Alt"),
@@ -114,7 +114,7 @@ LOW_SALIENCY_ENTITIES = [
     ("Voynich manuscript code", "Voynich-Alt"), ("Phaistos Disc stamp", "Phaistos-X"),
 ]
 
-# 多样化的问题模板 (Low-Saliency)
+# Diverse question templates (Low-Saliency)
 LOW_SALIENCY_TEMPLATES = [
     "What is the primary classification of {entity} in academic literature?",
     "According to current research, what category does {entity} belong to?",
@@ -131,38 +131,38 @@ LOW_SALIENCY_TEMPLATES = [
 
 # ============================================================
 # Counterfactual Perturbation Engine
-# (从 scale_1000_conflict.py 标准化提取)
+# (Standardized from scale_1000_conflict.py)
 # ============================================================
 def smart_perturb(text):
-    """智能实体干扰算法：生成同类型的 counterfactual answer"""
+    """Smart perturbation: generates same-type counterfactual answers."""
     text = str(text)
-    # 模式 A: 年份替换 (如 1990 -> 2090)
+    # Pattern A: Year replacement (e.g., 1990 -> 2090)
     if re.match(r'^\d{4}$', text):
         return str(int(text) + random.choice([-100, 100, 200]))
-    # 模式 B: 数字替换 (如 50 -> 101)
+    # Pattern B: Number replacement (e.g., 50 -> 101)
     if re.search(r'\d+', text):
         return re.sub(r'\d+', lambda x: str(int(x.group()) * 2 + 1), text)
-    # 模式 C: 专有名词 -> 添加 alt_ 前缀
+    # Pattern C: Named entity -> add alt_ prefix
     return f"alt_{text}"
 
 
 def generate_balanced_dataset(output_file, target_high=800, target_medium=800, target_low=500):
-    """生成平衡的 saliency 分层数据集
+    """Generate a balanced saliency-stratified dataset.
     
-    每个样本都包含:
-    - q: 问题
-    - gt: 正确答案列表
-    - fake: 干扰答案 (counterfactual)
-    - context: 原始 SQuAD 段落
-    - conflicting_context: 将 gold 替换为 fake 后的冲突段落
+    Each sample contains:
+    - q: question
+    - gt: gold answer list
+    - fake: counterfactual distractor answer
+    - context: original SQuAD passage
+    - conflicting_context: passage with gold replaced by fake
     - saliency: High/Medium/Low
     """
-    print(">>> 1. 正在从 Hugging Face 加载 SQuAD 全量数据 (Train + Validation)...")
+    print(">>> 1. Loading full SQuAD data from Hugging Face (Train + Validation)...")
     squad_train = load_dataset("squad", split="train")
     squad_val = load_dataset("squad", split="validation")
     full_dataset = concatenate_datasets([squad_train, squad_val])
     
-    # 转为列表并去重（根据问题文本）
+    # Convert to list and deduplicate (by question text)
     seen_questions = set()
     unique_samples = []
     for entry in full_dataset:
@@ -174,28 +174,28 @@ def generate_balanced_dataset(output_file, target_high=800, target_medium=800, t
             })
             seen_questions.add(entry['question'])
     
-    print(f">>> 数据去重完成，共有 {len(unique_samples)} 条唯一样本。")
+    print(f">>> Deduplication complete. {len(unique_samples)} unique samples.")
 
-    # 分层容器
+    # Tier containers
     tiers = {'High': [], 'Medium': [], 'Low': []}
 
-    # --- 2. 核心分类逻辑 (Saliency Labeling) ---
+    # --- 2. Saliency classification logic ---
     high_kws = [
         'born', 'president', 'capital', 'war', 'city', 'founded', 'legislation', 
         'century', 'author', 'director', 'ocean', 'mountain', 'country', 'continent',
         'invented', 'discovered', 'king', 'queen', 'treaty', 'empire'
     ]
     
-    print(">>> 3. 正在进行分层抽样 + Counterfactual 生成...")
+    print(">>> 3. Stratified sampling + counterfactual generation...")
     random.shuffle(unique_samples)
     
     for entry in unique_samples:
         q_text = entry['q'].lower()
-        gold = entry['gt'][0]  # 取第一个答案作为 gold
+        gold = entry['gt'][0]  # Use first answer as gold
         
-        # 生成 counterfactual answer
+        # Generate counterfactual answer
         fake = smart_perturb(gold)
-        # 构造冲突上下文：在原始段落中将 gold 替换为 fake
+        # Build conflicting context: replace gold with fake in original passage
         conflicting_context = entry['context'].replace(gold, fake)
         
         if any(kw in q_text for kw in high_kws) and len(tiers['High']) < target_high:
@@ -212,8 +212,8 @@ def generate_balanced_dataset(output_file, target_high=800, target_medium=800, t
         if len(tiers['High']) >= target_high and len(tiers['Medium']) >= target_medium:
             break
 
-    # --- 4. 构造 Low-Saliency 样本 ---
-    print(f">>> 4. 正在构造 {target_low} 条 Low-Saliency 样本 (使用 {len(LOW_SALIENCY_ENTITIES)} 个 unique entity pairs)...")
+    # --- 4. Construct Low-Saliency samples ---
+    print(f">>> 4. Constructing {target_low} Low-Saliency samples (using {len(LOW_SALIENCY_ENTITIES)} unique entity pairs)...")
     
     if target_low > len(LOW_SALIENCY_ENTITIES):
         print(f"    Warning: target_low ({target_low}) > available entities ({len(LOW_SALIENCY_ENTITIES)}), some entities will be reused with different templates")
@@ -223,7 +223,7 @@ def generate_balanced_dataset(output_file, target_high=800, target_medium=800, t
         pair = LOW_SALIENCY_ENTITIES[i % len(LOW_SALIENCY_ENTITIES)]
         question_template = LOW_SALIENCY_TEMPLATES[i % len(LOW_SALIENCY_TEMPLATES)]
         
-        # Low-Saliency: 用 fake entity 注入到 context 中构造冲突
+        # Low-Saliency: inject fake entity into context to create conflict
         fake_context = f"According to recent research, {pair[1]} is the primary classification. {template['context']}"
         
         low_entry = {
@@ -236,23 +236,23 @@ def generate_balanced_dataset(output_file, target_high=800, target_medium=800, t
         }
         tiers['Low'].append(low_entry)
 
-    # --- 5. 整合与保存 ---
+    # --- 5. Aggregate and save ---
     balanced_samples = tiers['High'] + tiers['Medium'] + tiers['Low']
     
-    # 验证：确保每个样本都有 fake 和 conflicting_context
+    # Verify: ensure every sample has fake and conflicting_context
     missing_fake = sum(1 for s in balanced_samples if not s.get('fake'))
     missing_cc = sum(1 for s in balanced_samples if not s.get('conflicting_context'))
     
     stats = {k: len(v) for k, v in tiers.items()}
-    print(f">>> 分布统计: {stats}")
-    print(f">>> 数据完整性: missing_fake={missing_fake}, missing_conflicting_context={missing_cc}")
+    print(f">>> Distribution: {stats}")
+    print(f">>> Data integrity: missing_fake={missing_fake}, missing_conflicting_context={missing_cc}")
 
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump({"details": balanced_samples}, f, indent=4, ensure_ascii=False)
     
-    print(f"\n✅ 成功生成平衡数据集: {output_file}")
+    print(f"\nSuccessfully generated balanced dataset: {output_file}")
     print(f"   High={stats['High']}, Medium={stats['Medium']}, Low={stats['Low']}")
-    print(f"   每个样本都包含: q, gt, fake, context, conflicting_context, saliency")
+    print(f"   Each sample contains: q, gt, fake, context, conflicting_context, saliency")
 
 if __name__ == "__main__":
     generate_balanced_dataset(os.path.join(DATA_DIR, "rag_balanced_2400.json"))

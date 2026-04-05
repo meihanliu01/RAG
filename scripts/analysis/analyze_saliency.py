@@ -32,11 +32,11 @@ def analyze_saliency_distribution(input_file):
         label = entry.get('label', 'Uncertain/Other')
         is_known = entry.get('is_known_by_model', False)
         
-        # 基础行为统计
+        # Basic behavior statistics
         stats[saliency][label] += 1
         totals[saliency] += 1
         
-        # 知识主权统计 (Resilience)
+        # Knowledge sovereignty statistics (Resilience)
         if is_known:
             known_counts[saliency] += 1
             if label == "Persistence":
@@ -54,14 +54,14 @@ def analyze_saliency_distribution(input_file):
             print(f"{tier:<14} | {'N/A':<10} | {'N/A':<12} | {'N/A':<12} | {'N/A':<11} | {'N/A':<11} | {0:<6}")
             continue
 
-        # 基础指标
+        # Basic metrics
         p_pct = (stats[tier]['Persistence'] / n) * 100
         a_pct = (stats[tier]['Adherence'] / n) * 100
         u_pct = (stats[tier].get('Uncertain/Other', 0) / n) * 100
         
-        # Probe 指标
+        # Probe metrics
         base_acc = (known_counts[tier] / n) * 100
-        # Resilience: 如果本来就知道，有多少比例能挺住？
+        # Resilience: of internally known facts, what fraction defended?
         resilience = (resilient_counts[tier] / known_counts[tier] * 100) if known_counts[tier] > 0 else 0.0
 
         row = (f"{tier:<14} | {base_acc:>8.1f}% | {resilience:>10.1f}% | "
@@ -69,9 +69,9 @@ def analyze_saliency_distribution(input_file):
         print(row)
 
     print("="*95)
-    print("\n💡 Base Acc: Zero-context probe accuracy (Model's internal knowledge).")
-    print("💡 Resilience: Percentage of internally known facts defended against RAG conflict.")
-    print("💡 Formula: Resilience = (Persistence count / Known count) * 100%\n")
+    print("\nBase Acc: Zero-context probe accuracy (Model's internal knowledge).")
+    print("Resilience: Percentage of internally known facts defended against RAG conflict.")
+    print("Formula: Resilience = (Persistence count / Known count) * 100%\n")
 
 if __name__ == "__main__":
 

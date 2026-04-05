@@ -47,131 +47,159 @@
 \section*{Abstract}
 % =============================================================================
 
-This study investigates \textit{Knowledge Sovereignty} in Llama-3-8B within Retrieval-Augmented Generation (RAG) systems by constructing 2,100 semantic conflicts stratified across three entity saliency tiers. Our results reveal a saliency-dependent trust mechanism: High-Saliency entities trigger robust \textbf{Parametric Sovereignty} (79.6\% persistence), while Low-Saliency entities lead to a \textbf{Cognitive Surrender} characterized by only 4.6\% persistence, 29.2\% adherence to false context, and 66.2\% hedged uncertainty. The model's internal parametric knowledge, verified via a zero-context probe, serves as the primary anchor for conflict resistance---samples where the model demonstrably ``knows'' the answer exhibit 89.5\% persistence in the High tier versus 13.2\% in the Low tier. Ablation studies show that even under ``Strict Context'' mandates, the model's persistence for high-confidence facts remains effectively immutable, indicating a ceiling effect for prompt engineering. These findings expose a critical vulnerability to \textit{Context Poisoning} in specialized domains and motivate entropy-based diagnostic signals as a mechanism for secure RAG deployment.
+Retrieval-Augmented Generation (RAG) systems depend on retrieved context to ground model outputs, but what happens when that context directly contradicts the model's own parametric knowledge? In this work, we study how two open-weight LLMs---Llama-3-8B and Qwen2.5-7B---handle such conflicts across 2,100 samples stratified by entity saliency. We find that behavior varies dramatically with saliency: for well-known entities, both models tend to stick with their internal answers (around 79\% persistence), while for obscure, long-tail entities, persistence drops below 5\% and the models either follow the false context or hedge. A zero-context probe confirms that verified parametric recall is a strong correlate of conflict resistance. Instruction-level ablation on 100 high-confidence samples shows only modest sensitivity to prompt wording, with persistence ranging from 81\% to 88\% across three instruction variants. These results are consistent across both models, suggesting that the observed patterns reflect general properties of mid-scale LLMs rather than architecture-specific quirks.
 
 % =============================================================================
 \section*{Introduction}
 % =============================================================================
 
-Retrieval-Augmented Generation (RAG) has become a standard paradigm for grounding large language models (LLMs) in external evidence, mitigating hallucinations by supplying relevant documents at inference time~\citep{lewis2020retrieval}. However, a fundamental tension exists between the model's \textit{Parametric Memory} (knowledge stored in pre-trained weights) and \textit{Non-parametric Evidence} (the retrieved context). When retrieved information contradicts internal knowledge, the model must adjudicate between these two potentially conflicting sources~\citep{chen2022rich}.
+Retrieval-Augmented Generation (RAG) has become a go-to approach for reducing hallucinations in LLMs by supplying relevant documents at inference time~\citep{lewis2020retrieval}. The basic idea is straightforward: instead of relying solely on what the model ``remembers'' from pre-training, we give it external evidence to work with. In most cases, this works well. But it raises an uncomfortable question: what does the model do when the retrieved context is \textit{wrong}?
 
-This report quantifies this tension through an automated counterfactual injection framework. By perturbing 2,100 factual entities across a saliency-stratified testbed derived from SQuAD, we investigate the ``Trust Threshold'' of Llama-3-8B and whether the model functions as a passive information extractor or an active evaluator of plausibility. We hypothesize that model behavior is governed by \textit{Semantic Saliency}: high-saliency facts (e.g., well-known historical entities) create a barrier against contextual over-writing, while low-saliency entities (e.g., niche biological nomenclature) lack sufficient parametric anchoring, resulting in ``Cognitive Surrender'' to external context~\citep{longpre2021}. We further examine whether the observed ``hedging'' represents a form of \textit{Epistemic Humility}---a calibrated response to conflicting signals that prevents confident hallucinations~\citep{xie2024adaptive}.
+This is not a hypothetical concern. In real deployments, retrieval pipelines can surface outdated, noisy, or adversarially manipulated documents. When such documents contradict the model's internal knowledge, the model faces a fundamental tension between trusting what it ``knows'' and trusting what it ``sees.'' Prior work has framed this as a conflict between parametric memory and non-parametric evidence~\citep{chen2022rich, longpre2021}, and has shown that model behavior in these situations is neither fully faithful to context nor fully independent of it~\citep{xie2024adaptive}.
+
+In this project, we try to understand this tension more concretely. We construct a testbed of 2,100 factual questions where the retrieved context has been deliberately altered to contain a wrong answer. The key variable we manipulate is \textit{entity saliency}---roughly, how ``well-known'' the entity in question is. Our hypothesis is simple: the model should be better at resisting false context for facts it has seen many times during pre-training (e.g., ``What year was the Eiffel Tower built?'') than for obscure facts it barely encountered (e.g., the classification of a specific protein).
+
+We test this on two models---Llama-3-8B and Qwen2.5-7B---and find strong, consistent evidence for this saliency gradient. We also use a zero-context probe to independently check whether the model can answer each question without any context, which lets us separate ``informed resistance'' (the model knows the answer and sticks with it) from ``uninformed guessing'' (the model happens to output the right answer for other reasons).
 
 % =============================================================================
 \section*{Related Work}
 % =============================================================================
 
-The challenge of knowledge conflict in RAG systems has been categorized by \citet{chen2022rich} as a trade-off between internal parametric priors and external evidence. Building on this, \citet{jeong2024adaptiverag} proposed an adaptive QA framework that dynamically selects retrieval strategies---ranging from no-retrieval to multi-step retrieval---based on query complexity, reducing unnecessary computational overhead while maintaining accuracy. Our empirical findings with Llama-3-8B align with this adaptive necessity; specifically, our results reflect the behavioral spectrum identified by \citet{xie2024adaptive}, where the model oscillates between ``stubborn persistence'' for high-saliency facts and ``total adherence'' for niche entities, suggesting that the model's internal confidence acts as an implicit complexity classifier.
+The problem of knowledge conflicts in RAG systems has received growing attention. \citet{chen2022rich} characterized the tension between internal parametric priors and external evidence, showing that models do not uniformly defer to retrieved context. \citet{longpre2021} studied entity-based knowledge conflicts in QA and found that model behavior depends heavily on whether the model has strong priors about the entity in question. More recently, \citet{xie2024adaptive} categorized LLM behavior under conflict into a spectrum ranging from ``stubborn persistence'' to ``total adherence,'' observing that the same model can exhibit very different strategies depending on the query.
 
-Our work differs from prior studies in three key aspects: (1) we operate at a \textit{larger scale} (2,100 stratified samples vs.\ typical $<$500 sample studies); (2) we introduce a \textit{zero-context parametric probe} that independently verifies whether the model possesses internal knowledge of each entity, enabling fine-grained analysis of \textit{informed resistance} vs.\ \textit{stochastic alignment}; and (3) we conduct \textit{instructional ablation} to isolate the effect of prompt engineering on conflict resolution behavior.
+On the retrieval side, \citet{jeong2024adaptiverag} proposed Adaptive-RAG, which dynamically selects retrieval strategies based on query complexity, reducing unnecessary computation while maintaining accuracy. Their work highlights that not all queries benefit equally from retrieval---a point that connects to our observation that high-saliency facts may not need (and can sometimes be harmed by) external context.
+
+Our work differs from prior studies in a few ways. First, we operate at a larger scale (2,100 stratified samples) than most conflict studies. Second, we include a zero-context parametric probe that independently verifies whether the model can recall each entity, enabling us to distinguish between informed and uninformed conflict responses. Third, we compare two architecturally different models (Llama-3 and Qwen2.5) to check whether the observed patterns generalize, rather than being specific to one model family.
 
 % =============================================================================
 \section*{Method}
 % =============================================================================
 
-\textbf{Counterfactual Injection Pipeline.} We developed an automated perturbation engine operating on the SQuAD dataset. For each query--context pair, the pipeline evaluates model behavior under two conditions: \textbf{(1) Gold-RAG}, where the model receives the original, factually correct context $C_\text{gold}$; and \textbf{(2) Conflict-RAG}, where the gold answer $y_\text{gold}$ within the passage is replaced by a counterfactual distractor $y_\text{fake}$, producing a conflicting context $C_\text{conflict}$.
+\subsection*{Counterfactual Injection}
 
-\textbf{Implementation Rigor.} To ensure perturbations induce \textit{semantic} conflict rather than surface-level anomalies, we enforce: (1) \textbf{Type Consistency}---perturbed entities match the NER category of the original (e.g., years replaced with years, names with names) via a \texttt{smart\_perturb} function; and (2) \textbf{Syntactic Invariance}---the sentence structure surrounding the target span remains identical, so grammatical cues do not reveal the perturbation.
+We start from the SQuAD dataset, which provides question--context--answer triples. For each sample, we take the gold answer $y_\text{gold}$ within the passage and replace it with a counterfactual distractor $y_\text{fake}$, producing a \textit{conflicting context} $C_\text{conflict}$. The model then receives $C_\text{conflict}$ along with the question and must produce an answer.
 
-\textbf{Knowledge Stratification.} We categorize entities into a three-tier \textit{Saliency Hierarchy} using keyword-based heuristics as a proxy for estimated pre-training frequency:
+To make the perturbations realistic, we use a \texttt{smart\_perturb} function that preserves the type of the original answer: years are replaced with other years, numbers with other numbers, and named entities with plausible-sounding alternatives (prefixed with \texttt{alt\_}). This way, the perturbation is semantic rather than obviously anomalous---the conflicting context still reads naturally.
+
+\subsection*{Saliency Stratification}
+
+We divide entities into three tiers based on how likely the model is to have encountered them during pre-training:
+
 \begin{itemize}[nosep]
-    \item \textbf{High-Saliency} ($N=800$): Entities involving well-known topics (e.g., presidents, capital cities, centuries).
-    \item \textbf{Medium-Saliency} ($N=800$): General SQuAD entities without high-salience indicator keywords.
-    \item \textbf{Low-Saliency} ($N=500$): Synthetically injected long-tail entities from 200+ unique pairs spanning biology, chemistry, geology, astronomy, and linguistics (e.g., \textit{Zfyve26 protein}, \textit{Coesite silica polymorph}).
+    \item \textbf{High-Saliency} ($N=800$): Questions containing keywords like ``president,'' ``capital,'' ``century,'' ``war''---topics that appear frequently in web text.
+    \item \textbf{Medium-Saliency} ($N=800$): General SQuAD questions without high-salience indicators.
+    \item \textbf{Low-Saliency} ($N=500$): Synthetically constructed questions about long-tail entities drawn from a bank of 200+ unique pairs spanning biology, chemistry, geology, astronomy, and other specialized domains (e.g., \textit{Zfyve26 protein}, \textit{Coesite silica polymorph}).
 \end{itemize}
 
-\textbf{Zero-Context Parametric Probe.} To independently verify whether the model possesses internal knowledge of each entity, we administer a \textit{zero-context probe}: each question is posed without any context, and the model's raw answer ($\hat{y}_\text{base}$) is compared to $y_\text{gold}$ via soft-token matching. A match indicates that the model's parametric memory contains the fact (\texttt{is\_known\_by\_model=True}), enabling us to separately analyze behavior for \textit{informed} vs.\ \textit{uninformed} conflict responses.
+We should note that this stratification is a proxy. The keyword heuristic does not perfectly capture pre-training frequency, and the Low tier uses synthetic entities that differ from High/Medium not just in saliency but also in construction method. We discuss the implications of this in the limitations section.
 
-\textbf{Instructional Ablation.} We modulate instruction strength across three variants: \textbf{Neutral} (standard RAG prompt), \textbf{Strict Context} (``ONLY use the provided context''), and \textbf{Strict Parametric} (``Prioritize factual accuracy''). Each variant is evaluated on 100 high-confidence (High-Saliency) samples.
+\subsection*{Zero-Context Parametric Probe}
 
-\textbf{Behavioral Taxonomy.} Model responses are classified into three mutually exclusive categories (Table~\ref{tab:taxonomy}) using a \textbf{soft-token matching algorithm}: normalized token overlap $\geq 50\%$ with bidirectional substring containment.
+Before running the conflict experiment, we pose each question to the model \textit{without any context} and record its raw answer ($\hat{y}_\text{base}$). If this answer matches $y_\text{gold}$ (via soft token matching with $\geq$50\% normalized overlap), we mark the sample as \texttt{is\_known\_by\_model=True}. This lets us ask: does the model behave differently in conflict when it demonstrably ``knows'' the answer versus when it does not?
+
+This probe is not a perfect measure of internal knowledge---it is sensitive to prompt phrasing and matching criteria, and a model might ``know'' a fact but fail to surface it under our specific prompt. We treat it as a practical proxy for accessible parametric recall rather than an exhaustive test of knowledge possession.
+
+\subsection*{Behavioral Taxonomy}
+
+We classify each model response into one of three categories using soft-token matching:
 
 \begin{table}[H]
 \centering
-\caption{Taxonomy of Model Responses under Knowledge Conflict}
+\caption{Taxonomy of model responses under knowledge conflict.}
 \label{tab:taxonomy}
 \begin{tabular}{lll}
 \toprule
-\textbf{Category} & \textbf{Metric} & \textbf{Operational Definition} \\
+\textbf{Category} & \textbf{Matching Rule} & \textbf{Meaning} \\
 \midrule
-Persistence & $y_\text{out} \approx y_\text{gold}$ & Model rejects conflict; outputs internal memory. \\
-Adherence   & $y_\text{out} \approx y_\text{fake}$ & Model follows external context faithfully. \\
-Uncertain   & $y_\text{out} \in \text{Hedge}$       & Model hedges or produces unmatched output. \\
+Persistence & $y_\text{out} \approx y_\text{gold}$ & Model outputs its internal answer, ignoring context. \\
+Adherence   & $y_\text{out} \approx y_\text{fake}$ & Model follows the (false) retrieved context. \\
+Uncertain   & Neither match                        & Model hedges, refuses, or produces unrelated output. \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection*{Instruction Ablation}
+
+To test whether prompt wording can shift conflict behavior, we run 100 high-confidence (High-Saliency, probe-correct) samples under three instruction variants: \textbf{Neutral} (standard RAG prompt), \textbf{Strict Context} (``You must ONLY use the provided context''), and \textbf{Strict Parametric} (``Prioritize factual accuracy'').
+
+\subsection*{Cross-Model Comparison}
+
+We run the entire pipeline on both Llama-3-8B and Qwen2.5-7B using identical data, prompts, and classification logic to check whether the observed patterns are model-specific or generalizable.
 
 % =============================================================================
 \section*{Experiments and Results}
 % =============================================================================
 
-All experiments use Llama-3-8B via Ollama with \texttt{temperature=0.0} for deterministic output.
+All experiments use Ollama with \texttt{temperature=0.0} for deterministic output. The same 2,100 samples are used for both models.
 
-\subsection*{Baseline Behavior Distribution}
+\subsection*{Overall Behavior Distribution (Llama-3-8B)}
 
-Table~\ref{tab:baseline} presents the aggregate behavioral distribution across all 2,100 samples. The dominant behavior is \textbf{Persistence} (61.0\%), indicating that Llama-3-8B generally favors its internal parametric memory over conflicting external context. Adherence accounts for 15.5\%, while 23.4\% of responses fall into the Uncertain/Hedged category.
+Table~\ref{tab:baseline} shows the aggregate distribution across all 2,100 samples for Llama-3-8B. The majority of responses (61.0\%) fall into Persistence, meaning the model tends to favor its parametric memory over conflicting context. Adherence accounts for 15.5\%, and the remaining 23.4\% are classified as Uncertain.
 
 \begin{table}[H]
 \centering
-\caption{Baseline Model Behavior Distribution ($N=2{,}100$)}
+\caption{Overall behavior distribution for Llama-3-8B ($N=2{,}100$).}
 \label{tab:baseline}
-\begin{tabular}{l|ccc|l}
+\begin{tabular}{l|ccc}
 \toprule
-\textbf{Category} & \textbf{Count} & \textbf{\%} & \textbf{95\% CI} & \textbf{Interpretation} \\
+\textbf{Category} & \textbf{Count} & \textbf{\%} & \textbf{95\% CI} \\
 \midrule
-Persistence     & 1282 & 61.0 & [59.0, 63.1] & Parametric Sovereignty \\
-Uncertain/Other &  492 & 23.4 & [21.6, 25.2] & Maximum Entropy \\
-Adherence       &  326 & 15.5 & [14.0, 17.1] & Cognitive Surrender \\
+Persistence     & 1282 & 61.0 & [59.0, 63.1] \\
+Uncertain/Other &  492 & 23.4 & [21.6, 25.2] \\
+Adherence       &  326 & 15.5 & [14.0, 17.1] \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection*{The Saliency Spectrum}
+\subsection*{Saliency-Stratified Analysis}
 
-Behavioral distributions shift systematically across saliency tiers (Table~\ref{tab:saliency}), with a Chi-square test yielding $\chi^2(4) = 979.8$, $p < 0.0001$, confirming that saliency governs behavior. The most striking finding is the near-total \textbf{erosion of Parametric Sovereignty} in the Low-Saliency tier: Persistence drops to \textbf{4.6\%} (vs.\ 79.6\% for High), while Adherence surges to \textbf{29.2\%}---a threefold increase over High-Saliency (10.9\%). The Resilience column measures the fraction of \textit{internally known} facts that the model successfully defends: 89.5\% for High vs.\ only 13.2\% for Low.
+Table~\ref{tab:saliency} breaks down behavior by saliency tier. The pattern is stark: High and Medium tiers show roughly 78--80\% persistence and only 10--12\% adherence, while the Low tier flips entirely---persistence drops to 4.6\%, adherence rises to 29.2\%, and the majority (66.2\%) of responses are uncertain.
+
+The ``Base Acc'' column reports the fraction of samples where the zero-context probe returned the correct answer. The ``Resilience'' column measures, among those probe-correct samples, how many maintained the correct answer even when presented with conflicting context. For High-Saliency entities, resilience is 89.5\%; for Low-Saliency, it drops to 13.2\%.
 
 \begin{table}[H]
 \centering
-\caption{Knowledge Sovereignty: Saliency-Stratified Behavioral Analysis}
+\caption{Behavior by saliency tier (Llama-3-8B). Base Acc = zero-context probe accuracy. Resilience = persistence rate among probe-correct samples.}
 \label{tab:saliency}
 \begin{tabular}{l|cc|ccc|r}
 \toprule
 \textbf{Tier} & \textbf{Base Acc} & \textbf{Resilience} & \textbf{Persist} & \textbf{Adhere} & \textbf{Uncert} & \textbf{N} \\
 \midrule
-High   & 20.2\% & \textbf{89.5\%} & 79.6\% & 10.9\%  & 9.5\%  & 800 \\
-Medium & 17.2\% & \textbf{86.2\%} & 77.8\% & 11.6\% & 10.6\% & 800 \\
-Low    & 7.6\%  & 13.2\%          & 4.6\%  & 29.2\% & 66.2\% & 500 \\
+High   & 20.2\% & 89.5\% & 79.6\% & 10.9\%  & 9.5\%  & 800 \\
+Medium & 17.2\% & 86.2\% & 77.8\% & 11.6\% & 10.6\% & 800 \\
+Low    & 7.6\%  & 13.2\% & 4.6\%  & 29.2\% & 66.2\% & 500 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection*{Instructional Ablation Study}
+\subsection*{Instruction Ablation}
 
-% >>> PLACEHOLDER: Replace with actual ablation data after running <<<
-To examine sensitivity to instruction strength, we evaluated 100 high-confidence (High-Saliency) samples under three instruction variants (Table~\ref{tab:ablation}). Results will be updated after the ablation experiment completes.
+Table~\ref{tab:ablation} reports results for three instruction variants tested on 100 High-Saliency samples. Persistence ranges from 81.0\% (neutral) to 88.0\% (strict parametric), a difference of 7 percentage points. Adherence stays between 4--6\% across all variants. The ``strict context'' instruction, which explicitly tells the model to ignore prior knowledge, does not substantially increase adherence---it only reduces uncertainty while persistence remains at 83\%.
+
+These results suggest that, at least for high-confidence facts, prompt-level instruction has limited ability to override the model's tendency to persist. However, we should be cautious about generalizing this finding, since the ablation was conducted on a single tier (High-Saliency) using one model and one prompt template family.
 
 \begin{table}[H]
 \centering
-\caption{Model Behavior Across Instruction Variants ($N=100$ per variant)}
+\caption{Instruction ablation on 100 High-Saliency samples (Llama-3-8B).}
 \label{tab:ablation}
 \begin{tabular}{l|ccc}
 \toprule
-\textbf{Instruction Variant} & \textbf{Persistence (\%)} & \textbf{Adherence (\%)} & \textbf{Uncertain (\%)} \\
+\textbf{Instruction Variant} & \textbf{Persist (\%)} & \textbf{Adhere (\%)} & \textbf{Uncert (\%)} \\
 \midrule
-Neutral            & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-Strict Context     & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-Strict Parametric  & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+Neutral            & 81.0 & 4.0 & 15.0 \\
+Strict Context     & 83.0 & 6.0 & 11.0 \\
+Strict Parametric  & 88.0 & 4.0 &  8.0 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection*{Interaction: Saliency $\times$ Parametric Knowledge}
 
-A fine-grained interaction analysis (Table~\ref{tab:interaction}) reveals that verified parametric knowledge amplifies conflict resistance within each tier. In the High-Saliency tier, samples where the zero-context probe confirmed prior knowledge (\texttt{Probe=Correct}) exhibit \textbf{89.5\%} Persistence, compared to 77.1\% for unknown facts---a +12.4\% differential attributable to verified internal anchoring. In the Low-Saliency tier, even when the model demonstrably ``knows'' the answer (\texttt{Correct}, $N=38$), Persistence reaches only \textbf{13.2\%} and Adherence surges to \textbf{50.0\%}, indicating that saliency-driven confidence outweighs raw factual recall.
+Table~\ref{tab:interaction} shows behavior conditioned on both saliency and probe outcome. The most informative comparison is within each tier: in the High tier, probe-correct samples show 89.5\% persistence versus 77.1\% for probe-incorrect---a +12.4\% gap attributable to verified recall. In the Low tier, even probe-correct samples ($N=38$) show only 13.2\% persistence and a striking 50.0\% adherence, suggesting that for obscure entities, even when the model ``knows'' the answer, it is easily overridden by context. We note that the Low-Correct cell has a small sample size and these percentages should be interpreted with appropriate caution.
 
 \begin{table}[H]
 \centering
-\caption{Interaction Between Saliency and Parametric Knowledge}
+\caption{Behavior by saliency and probe outcome (Llama-3-8B).}
 \label{tab:interaction}
 \begin{tabular}{ll|ccc|r}
 \toprule
@@ -183,26 +211,51 @@ High   & Incorrect & 77.1 & 12.2 & 10.7 & 638 \\
 Medium & Correct   & 86.2 & 9.4  & 4.3  & 138 \\
 Medium & Incorrect & 76.0 & 12.1 & 11.9 & 662 \\
 \midrule
-Low    & Correct   & 13.2 & 50.0 & 36.8 & 38 \\
+Low    & Correct   & 13.2 & 50.0 & 36.8 & 38$^*$ \\
 Low    & Incorrect & 3.9  & 27.5 & 68.6 & 462 \\
+\bottomrule
+\multicolumn{6}{l}{\footnotesize $^*$Small sample size; interpret with caution.}
+\end{tabular}
+\end{table}
+
+\subsection*{Aggregate Knowledge Conditioning}
+
+Table~\ref{tab:conditioning} pools across tiers. Probe-correct samples show 79.6\% persistence versus 57.5\% for probe-incorrect, confirming that verified parametric recall is associated with stronger conflict resistance. Interestingly, even probe-incorrect samples show substantial persistence (57.5\%), which may reflect distributional familiarity from pre-training---the model may have seen these entities enough to develop some implicit prior, even if it cannot produce the correct answer in a zero-context setting.
+
+\begin{table}[H]
+\centering
+\caption{Behavior conditioned on parametric knowledge, pooled across tiers (Llama-3-8B).}
+\label{tab:conditioning}
+\begin{tabular}{l|ccc|r}
+\toprule
+\textbf{Probe Outcome} & \textbf{Persist (\%)} & \textbf{Adhere (\%)} & \textbf{Uncert (\%)} & \textbf{N} \\
+\midrule
+Correct   & 79.6 & 12.1 & 8.3  & 338 \\
+Incorrect & 57.5 & 16.2 & 26.3 & 1762 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection*{Behavior Conditioned on Parametric Knowledge}
+\subsection*{Cross-Model Comparison}
 
-Aggregating across all saliency tiers (Table~\ref{tab:conditioning}), samples where the model was \texttt{Probe-Correct} ($N=338$) exhibit 79.6\% Persistence, compared to 57.5\% for \texttt{Probe-Incorrect} ($N=1{,}762$). This confirms that verified internal knowledge serves as a primary anchor for conflict resistance, but the model also exhibits substantial ``uninformed persistence'' (57.5\%), suggesting that factors beyond explicit recall---such as distributional familiarity from pre-training---contribute to the model's confidence.
+Table~\ref{tab:crossmodel} compares Llama-3-8B and Qwen2.5-7B side by side. The two models show remarkably similar behavior across all three tiers. In the High tier, both models maintain about 79\% persistence and 10--11\% adherence. In the Low tier, both collapse to below 5\% persistence, though Qwen shows slightly higher uncertainty (75.0\% vs.\ 66.2\%) and lower adherence (22.2\% vs.\ 29.2\%) than Llama. Overall distributions are nearly identical: 61.0\% vs.\ 60.1\% persistence, 15.5\% vs.\ 14.0\% adherence.
+
+This cross-model consistency is notable. Despite architectural differences (Llama uses grouped-query attention; Qwen uses a different tokenizer and training mix), both models exhibit the same saliency-dependent pattern. This suggests that the observed behavior is a general property of mid-scale LLMs rather than an artifact of any particular model's training.
 
 \begin{table}[H]
 \centering
-\caption{Model Behavior Conditioned on Parametric Knowledge ($N=2{,}100$)}
-\label{tab:conditioning}
-\begin{tabular}{l|ccc|r}
+\caption{Cross-model comparison: Llama-3-8B vs.\ Qwen2.5-7B ($N=2{,}100$ each).}
+\label{tab:crossmodel}
+\begin{tabular}{l|ccc|ccc}
 \toprule
-\textbf{Base Knowledge} & \textbf{Persist (\%)} & \textbf{Adhere (\%)} & \textbf{Uncert (\%)} & \textbf{N} \\
+ & \multicolumn{3}{c|}{\textbf{Llama-3-8B}} & \multicolumn{3}{c}{\textbf{Qwen2.5-7B}} \\
+\textbf{Tier} & \textbf{Persist} & \textbf{Adhere} & \textbf{Uncert} & \textbf{Persist} & \textbf{Adhere} & \textbf{Uncert} \\
 \midrule
-Probe-Correct   & 79.6 & 12.1 & 8.3  & 338 \\
-Probe-Incorrect & 57.5 & 16.2 & 26.3 & 1762 \\
+High   & 79.6\% & 10.9\% & 9.5\%  & 78.9\% & 10.5\% & 10.6\% \\
+Medium & 77.8\% & 11.6\% & 10.6\% & 77.2\% & 12.4\% & 10.4\% \\
+Low    & 4.6\%  & 29.2\% & 66.2\% & 2.8\%  & 22.2\% & 75.0\% \\
+\midrule
+\textbf{Overall} & 61.0\% & 15.5\% & 23.4\% & 60.1\% & 14.0\% & 25.9\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -211,33 +264,43 @@ Probe-Incorrect & 57.5 & 16.2 & 26.3 & 1762 \\
 \section*{Discussion}
 % =============================================================================
 
-\textbf{Saliency as the Governing Variable.} The dominant finding is the stark gradient in Parametric Sovereignty across saliency tiers. With $\chi^2(4) \gg$ critical value ($p < 0.0001$), entity saliency is the strongest predictor of conflict resolution behavior. High-Saliency entities enjoy 79.6\% Persistence and 89.5\% Resilience, while Low-Saliency entities collapse to 4.6\% and 13.2\% respectively. This saliency-dependent ``trust threshold'' directly reflects the distributional statistics of the pre-training corpus: entities that appeared frequently during training have stronger parametric anchors that resist contextual overwriting.
+\textbf{Saliency as the dominant variable.} The most consistent finding across both models is the strong association between entity saliency and conflict behavior. High-Saliency entities show roughly 80\% persistence; Low-Saliency entities show less than 5\%. This gradient is stable across two different model architectures and holds regardless of whether we condition on probe outcome. While we cannot claim a clean causal relationship---our saliency tiers differ in construction method as well as estimated pre-training frequency---the effect size is large and robust enough to warrant attention.
 
-\textbf{Cognitive Surrender in Low-Saliency Domains.} The Low-Saliency tier reveals a critical vulnerability. With only 4.6\% Persistence and 29.2\% Adherence, the model is highly susceptible to \textit{Context Poisoning} for specialized entities. The 66.2\% Uncertain rate suggests that many outputs contain hedged language---the model detects the unfamiliarity of the entity but lacks sufficient parametric grounding to generate a confident (correct) response. Notably, even when the zero-context probe confirms that the model ``knows'' the correct answer (\texttt{Correct}, $N=38$), Adherence still reaches 50.0\%, indicating that low saliency \textit{overrides} factual recall as the primary behavioral driver.
+\textbf{The role of parametric recall.} The zero-context probe provides a useful lens for interpreting conflict behavior. Within each tier, probe-correct samples consistently show higher persistence than probe-incorrect ones ($+12.4\%$ in High, $+10.2\%$ in Medium). This suggests that accessible parametric recall is associated with stronger conflict resistance. However, even probe-incorrect samples in the High tier maintain 77.1\% persistence, indicating that factors beyond explicit recall---such as distributional familiarity or implicit priors---also contribute to the model's tendency to resist context.
 
-\textbf{Informed Resistance vs.\ Uninformed Persistence.} Table~\ref{tab:conditioning} reveals a distinction between \textit{verified} and \textit{unverified} persistence. The gap between Probe-Correct (79.6\%) and Probe-Incorrect (57.5\%) Persistence confirms that explicit parametric knowledge provides an additional 22.1\% defense boost. However, the 57.5\% ``uninformed persistence'' rate suggests that the model also relies on distributional signals (e.g., co-occurrence statistics, attention patterns over familiar token sequences) independent of direct factual recall.
+\textbf{Uncertainty as a mixed signal.} About 23\% of responses across both models fall into the Uncertain category. Some of these responses contain hedging language that explicitly acknowledges the conflict (e.g., ``According to the text, X, though this may differ from...''), which could be interpreted as a form of calibrated uncertainty. Other uncertain responses are simply extraction failures or unrelated outputs. Without a more fine-grained analysis of the uncertain category, we cannot definitively say whether this hedging represents a useful self-calibration mechanism, but its consistent presence across both models is worth noting.
 
-\textbf{The Uncertainty Channel.} The 23.4\% aggregate uncertainty rate should not be interpreted as failure. Many hedged outputs exhibit what we term \textit{Source Attribution}: the model explicitly references both the provided context and its own knowledge, producing outputs such as ``\textit{According to the text}, X, \textit{though this differs from historical records}.'' This behavior represents a form of \textbf{Epistemic Humility} wherein the model signals a lack of consensus between its pre-trained weights and the provided context, effectively preventing confident hallucinations.
+\textbf{Instruction sensitivity.} The ablation results show that prompt wording has limited impact on conflict behavior for high-confidence facts. Even with explicit instructions to ``ONLY use the provided context,'' persistence only drops by 2 percentage points relative to ``prioritize factual accuracy.'' This suggests that, at least for well-known facts, the model's internal priors are difficult to override through prompt engineering alone. Whether this extends to other tiers or other prompt families remains an open question.
 
-\textbf{Limitations.} (1) The Low-Saliency tier uses synthetically constructed question-context pairs, which may not perfectly replicate naturally occurring long-tail knowledge conflicts. (2) The zero-context probe's soft-matching criterion has limited coverage (Base Accuracy 7--20\%), meaning many ``Probe-Incorrect'' samples may reflect matching strictness rather than true parametric ignorance. (3) The Low-Saliency \texttt{Correct} subsample ($N=38$) is small, and percentage-level conclusions should be interpreted cautiously. (4) Instruction ablation is limited to a single model and prompt template family; cross-model generalization requires further investigation.
+\textbf{Low-Saliency vulnerability.} The near-total collapse of persistence in the Low tier (4.6\% for Llama, 2.8\% for Qwen) points to a practical vulnerability. In domains where entities are inherently obscure---biomedical research, legal case law, niche historical records---the model has weak or no parametric anchoring and will readily accept whatever the retrieved context says. This makes such domains particularly susceptible to context poisoning, whether through adversarial attacks or simply noisy retrieval.
+
+\textbf{Limitations.} Several caveats apply to these results:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Saliency confounds.} Our saliency tiers differ not only in estimated pre-training frequency but also in construction method (SQuAD-derived vs.\ synthetic). The Low tier's behavior may partly reflect domain shift or lexical unfamiliarity rather than saliency alone.
+    \item \textbf{Probe limitations.} The zero-context probe uses a specific prompt and matching criterion. A model may ``know'' a fact but fail to surface it under our setup. Base accuracy (7--20\%) is low, meaning most samples are unresolved by the probe; we are effectively conditioning on a small, potentially biased subset.
+    \item \textbf{Small cells.} The Low-Saliency probe-correct cell has only $N=38$ samples. Percentage-level conclusions for this cell should be treated as suggestive rather than definitive.
+    \item \textbf{Ablation scope.} The instruction ablation covers one tier (High), one model, and three variants. We cannot generalize these results to low-saliency entities or fundamentally different prompt designs.
+    \item \textbf{Classification noise.} The soft-match classifier, while reasonable, is imperfect. Some responses labeled ``Uncertain'' may actually contain partial matches to gold or fake answers that fall below the 50\% threshold. A manual annotation study on a random subset would strengthen confidence in the label distribution.
+\end{enumerate}
 
 % =============================================================================
 \section*{Conclusion}
 % =============================================================================
 
-This study demonstrates that Llama-3-8B functions as a \textit{probabilistic evaluator} rather than a passive information extractor when confronted with knowledge conflicts in RAG systems. Its behavior is governed by a saliency-dependent trust mechanism:
+We studied how Llama-3-8B and Qwen2.5-7B handle knowledge conflicts in RAG settings across 2,100 saliency-stratified samples. Three main findings emerge:
 
 \begin{enumerate}[nosep]
-    \item \textbf{Knowledge Sovereignty}: For high-saliency entities, the model exhibits robust Parametric Sovereignty (79.6\% Persistence, 89.5\% Resilience), effectively overriding conflicting retrieved context.
-    \item \textbf{Cognitive Surrender}: For low-saliency, long-tail entities, the model defaults to context adherence (29.2\%) or uncertainty (66.2\%), creating a critical attack surface for Context Poisoning in specialized domains.
-    \item \textbf{Epistemic Humility}: The model's hedging behavior represents functional self-calibration rather than stochastic failure, serving as a built-in defense against confident hallucinations.
+    \item \textbf{Saliency shapes conflict behavior.} Both models show strong persistence ($\sim$80\%) for well-known entities and near-total collapse ($<$5\%) for obscure ones. This pattern is consistent across architectures.
+    \item \textbf{Parametric recall correlates with resistance.} Samples where the zero-context probe confirms the model can recall the fact independently show meaningfully higher persistence, though the model also exhibits ``uninformed persistence'' that likely reflects distributional priors.
+    \item \textbf{Prompt-level intervention has limited reach.} For high-confidence facts, instruction wording shifts persistence by at most 7 percentage points, suggesting that the model's internal priors are not easily overridden by prompt engineering.
 \end{enumerate}
 
-These findings have direct implications for RAG system design. In high-stakes applications involving specialized domains (e.g., biomedical, legal), where entity saliency is inherently low, additional safeguards such as entropy-based conflict detectors, multi-source verification, and retrieval quality filters are essential to prevent context poisoning attacks from compromising system output.
+These results highlight a practical concern for RAG deployment: in specialized domains with inherently low-saliency entities, the model's lack of parametric anchoring makes it highly susceptible to following incorrect retrieved context. For such domains, additional safeguards---retrieval quality filters, multi-source verification, or uncertainty-aware decoding---may be necessary to ensure reliable outputs.
 
 \section*{Acknowledgments}
 
-This project utilized Claude (Anthropic) for code assistance and experimental workflow optimization. All experimental results, analysis, and writing are original work by the author.
+This project utilized Claude (Anthropic) for code assistance and experimental workflow optimization. All experimental design, analysis, and interpretation are original work by the author.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

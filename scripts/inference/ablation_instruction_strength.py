@@ -24,11 +24,11 @@ MODEL_NAME = "llama3:8b"
 INPUT_FILE = os.path.join(RESULTS_DIR, "rag_final_results.json")
 OUTPUT_FILE = os.path.join(RESULTS_DIR, "ablation_results.json")
 
-# 每个变体使用的样本数 (从 High-Saliency 中选取 high-confidence 样本)
+# Number of samples per variant (selected from High-Saliency high-confidence samples)
 SAMPLES_PER_VARIANT = 100
 
 # ============================================================
-# 指令强度变体 (Instruction Variants)
+# Instruction Variants
 # ============================================================
 INSTRUCTION_VARIANTS = {
     "neutral": (
@@ -50,17 +50,17 @@ INSTRUCTION_VARIANTS = {
 
 
 def select_high_confidence_samples(input_file, n=SAMPLES_PER_VARIANT):
-    """选取 High-Saliency 中 is_known_by_model=True 的样本 (最强冲突)"""
+    """Select High-Saliency samples where is_known_by_model=True (strongest conflict)."""
     with open(input_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     samples = data.get('details', data) if isinstance(data, dict) else data
     
-    # 优先选 High + known (模型确实知道正确答案的)
+    # Prefer High + known (model demonstrably knows the answer)
     high_known = [s for s in samples if s.get('saliency') == 'High' and s.get('is_known_by_model')]
     high_unknown = [s for s in samples if s.get('saliency') == 'High' and not s.get('is_known_by_model')]
     
-    # 如果 known 不够，补充 unknown
+    # Supplement with unknown if not enough known samples
     selected = high_known[:n]
     if len(selected) < n:
         selected += high_unknown[:n - len(selected)]
@@ -70,15 +70,15 @@ def select_high_confidence_samples(input_file, n=SAMPLES_PER_VARIANT):
 
 
 def run_ablation():
-    """运行三个指令变体的消融实验"""
+    """Run ablation experiment across three instruction variants."""
     if not os.path.exists(INPUT_FILE):
-        print(f"❌ Error: {INPUT_FILE} not found.")
-        print("   请先运行完整 pipeline (generate → probe → rag → classifier)")
+        print(f"Error: {INPUT_FILE} not found.")
+        print("   Please run the full pipeline first (generate -> probe -> rag -> classifier)")
         return
     
     samples = select_high_confidence_samples(INPUT_FILE, SAMPLES_PER_VARIANT)
     if not samples:
-        print("❌ No samples selected.")
+        print("Error: No samples selected.")
         return
     
     results = []
@@ -122,12 +122,12 @@ Answer:"""
                 "is_known": sample.get('is_known_by_model', False)
             })
         
-        # 每个变体跑完存一次档
+        # Save checkpoint after each variant completes
         with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=4, ensure_ascii=False)
-        print(f"   ✅ {variant_name} complete. Intermediate save to {OUTPUT_FILE}")
+        print(f"   {variant_name} complete. Intermediate save to {OUTPUT_FILE}")
     
-    print(f"\n🚀 Ablation Complete! Total results: {len(results)}")
+    print(f"\nAblation Complete! Total results: {len(results)}")
     print(f"   Saved to: {OUTPUT_FILE}")
 
 

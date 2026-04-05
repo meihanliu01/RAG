@@ -55,7 +55,7 @@ def main():
     with open(os.path.join(DATA_DIR, "chunks.json"), "w", encoding="utf-8") as f:
         json.dump(chunk_texts, f, ensure_ascii=False)
 
-    print("\n✅ Task Complete! Generated 'squad_faiss.index' and 'chunks.json'.")
+    print("\nTask Complete! Generated 'squad_faiss.index' and 'chunks.json'.")
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,9 @@
 """
 generate_all_tables.py
 ======================
-一键生成论文中所有 Table (2-6) 的数据。
-确保所有表格数据来自同一数据源 (rag_final_labeled_augmented.json)，
-彻底消除因多个脚本使用不同字段/文件导致的数据不一致。
+Generate all paper tables (2-7) from a single data source.
+Ensures all table data comes from rag_final_labeled_augmented.json,
+eliminating inconsistencies from multiple scripts using different fields/files.
 
 Usage:
     python scripts/analysis/generate_all_tables.py
@@ -18,20 +18,20 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
 # ============================================================
-# 数据加载
+# Data loading
 # ============================================================
 def load_labeled_data(filename="rag_final_labeled_augmented.json"):
     filepath = os.path.join(RESULTS_DIR, filename)
     if not os.path.exists(filepath):
-        print(f"❌ Error: {filepath} not found.")
-        print("   请先运行: python scripts/analysis/behavioral_classifier.py")
+        print(f"Error: {filepath} not found.")
+        print("   Please run first: python scripts/analysis/behavioral_classifier.py")
         return None
     
     with open(filepath, 'r', encoding='utf-8') as f:
         raw = json.load(f)
     
     samples = raw.get('details', raw) if isinstance(raw, dict) else raw
-    print(f"✅ Loaded {len(samples)} samples from {filename}")
+    print(f"Loaded {len(samples)} samples from {filename}")
     return samples
 
 
@@ -133,8 +133,8 @@ def table_4_ablation():
     
     ablation_file = os.path.join(RESULTS_DIR, "ablation_results.json")
     if not os.path.exists(ablation_file):
-        print("⚠️ ablation_results.json not found. Skipping Table 4.")
-        print("   请先运行: python scripts/inference/ablation_instruction_strength.py")
+        print("Warning: ablation_results.json not found. Skipping Table 4.")
+        print("   Please run first: python scripts/inference/ablation_instruction_strength.py")
         return
     
     with open(ablation_file, 'r') as f:
@@ -164,7 +164,7 @@ def table_4_ablation():
         gold = entry.get('gold', '')
         fake = entry.get('fake', '')
         
-        # 使用与 behavioral_classifier 一致的分类逻辑
+        # Use classification logic consistent with behavioral_classifier
         pred_lower = pred.lower()
         if any(msg in pred_lower for msg in ["don't know", "dont know", "not mentioned", "no information"]) or not pred.strip():
             behavior = 'Uncertain'
@@ -282,9 +282,9 @@ def consistency_check(samples):
     # Check label vs final_label agreement
     if has_label > 0 and has_final_label > 0:
         agree = sum(1 for s in samples if s.get('label') == s.get('final_label'))
-        print(f"\n  ⚠️ label == final_label agreement: {agree}/{total} ({pct(agree, total)}%)")
+        print(f"\n  Warning: label == final_label agreement: {agree}/{total} ({pct(agree, total)}%)")
         if agree < total:
-            print("  → These fields differ! All table generation uses 'label' (from classifier).")
+            print("  -> These fields differ! All table generation uses 'label' (from classifier).")
     
     # Saliency distribution
     sal_counts = Counter(s.get('saliency') for s in samples)
@@ -293,7 +293,7 @@ def consistency_check(samples):
     # Warning for small sample sizes
     for tier, count in sal_counts.items():
         if count < 100:
-            print(f"  ⚠️ Warning: {tier} tier has only N={count} samples (recommend >= 100)")
+            print(f"  Warning: {tier} tier has only N={count} samples (recommend >= 100)")
     
     print()
 
@@ -308,8 +308,8 @@ def table_7_cross_model(llama_samples):
     
     qwen_file = os.path.join(RESULTS_DIR, "qwen_final_labeled.json")
     if not os.path.exists(qwen_file):
-        print("⚠️ qwen_final_labeled.json not found. Skipping Table 7.")
-        print("   请先运行: python scripts/inference/qwen_full_pipeline.py")
+        print("Warning: qwen_final_labeled.json not found. Skipping Table 7.")
+        print("   Please run first: python scripts/inference/qwen_full_pipeline.py")
         return
     
     with open(qwen_file, 'r', encoding='utf-8') as f:
@@ -373,7 +373,7 @@ def main():
     table_7_cross_model(samples)
     
     print("\n" + "="*80)
-    print("✅ All tables generated successfully.")
+    print("All tables generated successfully.")
     print("   Llama data: results/rag_final_labeled_augmented.json")
     print("   Qwen data:  results/qwen_final_labeled.json")
     print("="*80)
