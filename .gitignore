@@ -10,3 +10,6 @@ __pycache__/
 
 # Third-party dataset (download command in README)
 data/popqa/
+
+# Run logs
+*.log
