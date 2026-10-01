@@ -26,7 +26,8 @@ class AnswerRequest(BaseModel):
 
 class DetectionOut(BaseModel):
     verdict: str
-    overlap: float
+    overlap: float = 0.0
+    log_p_yes: Optional[float] = None
 
 
 class AnswerResponse(BaseModel):
@@ -39,12 +40,15 @@ class AnswerResponse(BaseModel):
     timings_ms: dict[str, float]
 
 
-def create_app(llm: Optional[LLMClient] = None) -> FastAPI:
+def create_app(llm: Optional[LLMClient] = None, detector: Optional[str] = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         client = llm or OllamaClient(settings.ollama_url, settings.model,
                                      settings.llm_timeout_s, settings.max_tokens)
-        app.state.rag = ConflictAwareRAG(client, TTLCache(settings.cache_size, settings.cache_ttl_s))
+        app.state.rag = ConflictAwareRAG(
+            client, TTLCache(settings.cache_size, settings.cache_ttl_s),
+            detector=detector or settings.detector, verify_threshold=settings.verify_log_p_yes_threshold,
+        )
         yield
         if llm is None:
             await client.aclose()
@@ -54,8 +58,8 @@ def create_app(llm: Optional[LLMClient] = None) -> FastAPI:
     @app.get("/healthz")
     async def healthz():
         cache = app.state.rag.cache
-        return {"status": "ok", "cache_entries": len(cache), "cache_hits": cache.hits,
-                "cache_misses": cache.misses}
+        return {"status": "ok", "detector": app.state.rag.detector, "cache_entries": len(cache),
+                "cache_hits": cache.hits, "cache_misses": cache.misses}
 
     @app.post("/v1/answer", response_model=AnswerResponse)
     async def answer(req: AnswerRequest):
@@ -67,8 +71,9 @@ def create_app(llm: Optional[LLMClient] = None) -> FastAPI:
                 result = await rag.answer(req.question, req.contexts)
         except httpx.HTTPError as exc:
             raise HTTPException(status_code=502, detail=f"LLM backend error: {exc}") from exc
-        detection = (DetectionOut(verdict=result.detection.verdict.value, overlap=result.detection.overlap)
-                     if result.detection else None)
+        det = result.detection
+        detection = (DetectionOut(verdict=det.verdict.value, overlap=det.overlap, log_p_yes=det.log_p_yes)
+                     if det else None)
         return AnswerResponse(
             answer=result.answer, route=result.route, context_answer=result.context_answer,
             closed_book_answer=result.closed_book_answer, detection=detection,

@@ -1,6 +1,6 @@
 import time
 from collections import OrderedDict
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 
 class TTLCache:
@@ -10,11 +10,11 @@ class TTLCache:
         self._max_size = max_size
         self._ttl_s = ttl_s
         self._clock = clock
-        self._data: OrderedDict[str, tuple[float, str]] = OrderedDict()
+        self._data: OrderedDict[str, tuple[float, Any]] = OrderedDict()
         self.hits = 0
         self.misses = 0
 
-    def get(self, key: str) -> Optional[str]:
+    def get(self, key: str) -> Optional[Any]:
         item = self._data.get(key)
         if item is None or item[0] < self._clock():
             self._data.pop(key, None)
@@ -24,7 +24,7 @@ class TTLCache:
         self.hits += 1
         return item[1]
 
-    def set(self, key: str, value: str) -> None:
+    def set(self, key: str, value: Any) -> None:
         self._data[key] = (self._clock() + self._ttl_s, value)
         self._data.move_to_end(key)
         while len(self._data) > self._max_size:

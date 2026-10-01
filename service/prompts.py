@@ -20,3 +20,14 @@ def closed_book_prompt(question: str) -> str:
 def rag_prompt(question: str, contexts: list[str]) -> str:
     context = "\n\n".join(contexts)
     return f"{RAG_INSTRUCTION}\n\nContext: {context}\n\nQuestion: {question}\nAnswer:"
+
+
+# Same wording as scripts/detectors/collect_signals.py, where thresholds were tuned.
+VERIFY = (
+    "Question: {question}\nProposed answer: {answer}\n"
+    "Based on your own knowledge, is the proposed answer correct? Reply with Yes or No.\nReply:"
+)
+
+
+def verify_prompt(question: str, answer: str) -> str:
+    return VERIFY.format(question=question, answer=answer)

@@ -3,8 +3,8 @@ End-to-end benchmark against a running service (uvicorn service.app:app).
 
 For each sampled PopQA question it sends, in this order:
     1. plain   + false context   -> baseline RAG answer and latency
-    2. guarded + false context   -> detection on conflicts (closed-book cache cold)
-    3. guarded + true context    -> false alarms (closed-book cache warm)
+    2. guarded + false context   -> detection on conflicts
+    3. guarded + true context    -> false alarms (agreement detector: closed-book cache is warm)
 
 Reports:
     - unflagged false answers served: plain RAG vs guarded
@@ -98,14 +98,14 @@ def report(records, wall_s):
 
     print("\n=== Latency (ms, client-side) ===")
     rows = [("plain RAG", [r["plain"]["client_ms"] for r in records]),
-            ("guarded, cache cold", [r["conflict"]["client_ms"] for r in records]),
-            ("guarded, cache warm", [r["support"]["client_ms"] for r in records])]
+            ("guarded, false ctx", [r["conflict"]["client_ms"] for r in records]),
+            ("guarded, true ctx", [r["support"]["client_ms"] for r in records])]
     for name, vals in rows:
         print(f"  {name:<22} p50 {pctl(vals, 0.5):7.0f}   p95 {pctl(vals, 0.95):7.0f}   mean {statistics.mean(vals):7.0f}")
     base = statistics.median(rows[0][1])
     for name, vals in rows[1:]:
         print(f"  overhead vs plain, {name.split(', ')[1]:<10} p50 {statistics.median(vals) - base:+7.0f} ms")
-    print(f"  cache hit rate on warm requests          {100 * sum(r['support']['cache_hit'] for r in records) / n:5.1f}%")
+    print(f"  cache hit rate on true-ctx requests       {100 * sum(r['support']['cache_hit'] for r in records) / n:5.1f}%")
     print(f"  throughput {3 * n / wall_s:.2f} req/s over {wall_s:.0f}s")
 
 
